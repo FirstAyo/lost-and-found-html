@@ -50,7 +50,7 @@ function fileFilter(_req, file, callback) {
 export const uploadSingleItemImage = multer({
   storage,
   limits: {
-    fileSize: 3 * 1024 * 1024,
+    fileSize: 350 * 1024,
     files: 1
   },
   fileFilter
@@ -63,7 +63,7 @@ export function getUploadErrorMessage(error) {
 
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
-      return 'Image must be 3 MB or smaller.';
+      return 'Image must be 350 KB or smaller.';
     }
 
     if (error.code === 'LIMIT_UNEXPECTED_FILE') {

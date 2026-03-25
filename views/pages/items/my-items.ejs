@@ -3,7 +3,7 @@
     <div>
       <p class="text-uppercase small fw-semibold text-primary mb-1">My listings</p>
       <h1 class="h2 fw-bold mb-2">Manage your lost and found posts</h1>
-      <p class="text-secondary mb-0">You can now edit, resolve, and delete your own listings from this dashboard.</p>
+      <p class="text-secondary mb-0">This phase includes viewing your own listings. Editing and resolving will arrive in the next phase.</p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
       <a href="/items/new/lost" class="btn btn-outline-primary">Post Lost Item</a>
@@ -26,7 +26,7 @@
     <div class="row g-4">
       <% items.forEach((item) => { %>
         <div class="col-md-6 col-xl-4">
-          <%- include('../../components/item-card', { item, showOwnerActions: true }) %>
+          <%- include('../../components/item-card', { item }) %>
         </div>
       <% }) %>
     </div>

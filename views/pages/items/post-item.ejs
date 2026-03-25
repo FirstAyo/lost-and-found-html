@@ -21,7 +21,7 @@
 
   <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-4 p-lg-5">
-      <form class="row g-4" method="POST" action="<%= formAction %>" enctype="multipart/form-data">
+      <form class="row g-4" method="POST" action="/items/<%= itemType %>" enctype="multipart/form-data">
         <div class="col-md-6">
           <label for="title" class="form-label">Item title</label>
           <input id="title" name="title" type="text" class="form-control" value="<%= itemFeedback?.values?.title || values.title %>" placeholder="Black leather wallet" required />
@@ -44,25 +44,10 @@
           <input id="location" name="location" type="text" class="form-control" value="<%= itemFeedback?.values?.location || values.location %>" placeholder="Library, downtown station, campus..." required />
         </div>
         <div class="col-12">
-          <label for="image" class="form-label">Item photo <%= isEditing ? '(upload a new file only if you want to replace the current image)' : '(optional)' %></label>
+          <label for="image" class="form-label">Item photo (optional)</label>
           <input id="image" name="image" type="file" class="form-control" accept="image/png,image/jpeg,image/webp" />
-          <div class="form-text">Accepted formats: JPG, PNG, WebP. Maximum size: 3 MB.</div>
+          <div class="form-text">Accepted formats: JPG, PNG, WebP. Maximum size: 350 KB.</div>
         </div>
-
-        <% if (isEditing && existingImagePath) { %>
-          <div class="col-12">
-            <div class="card border rounded-4 bg-light-subtle">
-              <div class="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
-                <img src="<%= existingImagePath %>" alt="Current item image" class="rounded-3 object-fit-cover" style="width: 120px; height: 90px;" />
-                <div>
-                  <p class="fw-semibold mb-1">Current image</p>
-                  <p class="text-secondary small mb-0">Leave the upload field empty to keep this image.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% } %>
-
         <div class="col-12">
           <label for="description" class="form-label">Description</label>
           <textarea id="description" name="description" class="form-control post-item-textarea" rows="6" placeholder="Describe the item, colors, identifying marks, and anything else useful." required><%= itemFeedback?.values?.description || values.description %></textarea>

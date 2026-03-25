@@ -1,1 +1,3 @@
-console.debug('admin page ready');
+document.addEventListener('DOMContentLoaded', () => {
+  console.debug('admin tools ready');
+});

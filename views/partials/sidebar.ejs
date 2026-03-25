@@ -10,6 +10,8 @@
     <% if (currentUser?.role === 'admin') { %>
       <hr class="my-2" />
       <a class="nav-link <%= currentPath === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">Admin Overview</a>
+      <a class="nav-link <%= currentPath === '/admin/users' ? 'active' : '' %>" href="/admin/users">Manage Users</a>
+      <a class="nav-link <%= currentPath === '/admin/listings' ? 'active' : '' %>" href="/admin/listings">Manage Listings</a>
     <% } %>
   </nav>
 </div>

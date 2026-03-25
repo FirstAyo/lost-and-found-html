@@ -1,0 +1,103 @@
+<section>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Manage Listings</h1>
+      <p class="text-secondary mb-0">Review all lost and found posts and moderate them when necessary.</p>
+    </div>
+    <a href="/admin/dashboard" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+  </div>
+
+  <% if (adminFeedback) { %>
+    <div class="alert alert-<%= adminFeedback.type %> border-0 shadow-sm" role="alert">
+      <h2 class="h6 mb-2"><%= adminFeedback.title %></h2>
+      <% adminFeedback.messages.forEach((message) => { %>
+        <p class="mb-0"><%= message %></p>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <form method="GET" action="/admin/listings" class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="search" class="form-label">Search</label>
+          <input id="search" name="search" class="form-control" value="<%= filters.search %>" placeholder="Search by title, category, or location" />
+        </div>
+        <div class="col-md-2">
+          <label for="type" class="form-label">Type</label>
+          <select id="type" name="type" class="form-select">
+            <option value="">All</option>
+            <option value="lost" <%= filters.type === 'lost' ? 'selected' : '' %>>Lost</option>
+            <option value="found" <%= filters.type === 'found' ? 'selected' : '' %>>Found</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-select">
+            <option value="">All</option>
+            <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="resolved" <%= filters.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0 admin-table">
+        <thead>
+          <tr>
+            <th>Listing</th>
+            <th>Owner</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (items.length > 0) { %>
+            <% items.forEach((item) => { %>
+              <tr>
+                <td>
+                  <div class="fw-semibold"><%= item.title %></div>
+                  <div class="small text-secondary"><%= item.category %> • <%= item.location %></div>
+                </td>
+                <td>
+                  <div><%= item.ownerName %></div>
+                  <% if (item.ownerEmail) { %>
+                    <div class="small text-secondary"><%= item.ownerEmail %></div>
+                  <% } %>
+                </td>
+                <td><span class="badge text-bg-light text-dark"><%= item.type %></span></td>
+                <td><span class="badge <%= item.status === 'resolved' ? 'text-bg-success' : 'text-bg-primary' %>"><%= item.status %></span></td>
+                <td><%= item.incidentDate %></td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                    <% if (item.status !== 'resolved') { %>
+                      <form method="POST" action="/admin/listings/<%= item.id %>/resolve" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Resolve</button>
+                      </form>
+                    <% } %>
+                    <a href="/items/<%= item.id %>" class="btn btn-sm btn-outline-secondary">View</a>
+                    <form method="POST" action="/admin/listings/<%= item.id %>/delete" class="d-inline" onsubmit="return confirm('Delete this listing?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="text-center py-4 text-secondary">No listings matched the current filters.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

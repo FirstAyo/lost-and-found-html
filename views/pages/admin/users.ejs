@@ -1,0 +1,96 @@
+<section>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Manage Users</h1>
+      <p class="text-secondary mb-0">Review member accounts, roles, and activity status.</p>
+    </div>
+    <a href="/admin/dashboard" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+  </div>
+
+  <% if (adminFeedback) { %>
+    <div class="alert alert-<%= adminFeedback.type %> border-0 shadow-sm" role="alert">
+      <h2 class="h6 mb-2"><%= adminFeedback.title %></h2>
+      <% adminFeedback.messages.forEach((message) => { %>
+        <p class="mb-0"><%= message %></p>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <form method="GET" action="/admin/users" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label for="search" class="form-label">Search</label>
+          <input id="search" name="search" class="form-control" value="<%= filters.search %>" placeholder="Search by name or email" />
+        </div>
+        <div class="col-md-3">
+          <label for="role" class="form-label">Role</label>
+          <select id="role" name="role" class="form-select">
+            <option value="">All roles</option>
+            <option value="member" <%= filters.role === 'member' ? 'selected' : '' %>>Member</option>
+            <option value="admin" <%= filters.role === 'admin' ? 'selected' : '' %>>Admin</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-select">
+            <option value="">All statuses</option>
+            <option value="active" <%= filters.status === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="suspended" <%= filters.status === 'suspended' ? 'selected' : '' %>>Suspended</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0 admin-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Listings</th>
+            <th>Joined</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (users.length > 0) { %>
+            <% users.forEach((user) => { %>
+              <tr>
+                <td>
+                  <div class="fw-semibold"><%= user.fullName %></div>
+                  <div class="small text-secondary"><%= user.email %></div>
+                </td>
+                <td><span class="badge text-bg-light text-dark"><%= user.role %></span></td>
+                <td><span class="badge <%= user.status === 'active' ? 'text-bg-success' : 'text-bg-warning' %>"><%= user.status %></span></td>
+                <td><%= user.itemCount %></td>
+                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                <td class="text-end">
+                  <% if (currentUser.id !== user.id) { %>
+                    <form method="POST" action="/admin/users/<%= user.id %>/toggle-status" class="d-inline">
+                      <button type="submit" class="btn btn-sm <%= user.status === 'active' ? 'btn-outline-warning' : 'btn-outline-success' %>">
+                        <%= user.status === 'active' ? 'Suspend' : 'Reactivate' %>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <span class="text-secondary small">Current account</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="text-center py-4 text-secondary">No users matched the current filters.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

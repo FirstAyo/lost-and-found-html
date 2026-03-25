@@ -1,1 +1,26 @@
-/* Page-specific styles for admin dashboard. */
+.admin-stat-card {
+  min-height: 132px;
+}
+
+.admin-pill {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(13, 110, 253, 0.12);
+  border-radius: 0.85rem;
+  background: rgba(13, 110, 253, 0.04);
+}
+
+.admin-table thead th {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.admin-table tbody td {
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(13, 110, 253, 0.03);
+}

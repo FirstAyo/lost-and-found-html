@@ -46,11 +46,6 @@ function mapItemForView(itemDocument) {
   };
 }
 
-async function fetchOwnedItemOrThrow(itemId, ownerId) {
-  const item = await Item.findOne({ _id: itemId, owner: ownerId });
-  return item;
-}
-
 export const itemService = {
   async createItem(payload, ownerId) {
     const createdItem = await Item.create({
@@ -60,47 +55,6 @@ export const itemService = {
 
     await createdItem.populate('owner', 'firstName lastName fullName');
     return mapItemForView(createdItem);
-  },
-
-  async updateOwnedItem(itemId, ownerId, payload) {
-    const item = await fetchOwnedItemOrThrow(itemId, ownerId);
-
-    if (!item) {
-      return null;
-    }
-
-    Object.assign(item, payload);
-    await item.save();
-    await item.populate('owner', 'firstName lastName fullName');
-
-    return mapItemForView(item);
-  },
-
-  async markOwnedItemResolved(itemId, ownerId) {
-    const item = await fetchOwnedItemOrThrow(itemId, ownerId);
-
-    if (!item) {
-      return null;
-    }
-
-    item.status = 'resolved';
-    await item.save();
-    await item.populate('owner', 'firstName lastName fullName');
-
-    return mapItemForView(item);
-  },
-
-  async deleteOwnedItem(itemId, ownerId) {
-    const item = await fetchOwnedItemOrThrow(itemId, ownerId);
-
-    if (!item) {
-      return null;
-    }
-
-    const snapshot = mapItemForView(item);
-    await item.deleteOne();
-
-    return snapshot;
   },
 
   async getBrowseItems(filters = {}) {

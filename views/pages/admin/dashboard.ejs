@@ -2,15 +2,94 @@
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
       <h1 class="h2 fw-bold mb-1">Admin Dashboard</h1>
-      <p class="text-secondary mb-0">Admin-only route protection is now active.</p>
+      <p class="text-secondary mb-0">Monitor platform activity, manage members, and moderate listings.</p>
     </div>
     <span class="badge text-bg-primary fs-6">Administrator</span>
   </div>
 
-  <div class="card border-0 shadow-sm stat-card">
+  <% if (adminFeedback) { %>
+    <div class="alert alert-<%= adminFeedback.type %> border-0 shadow-sm" role="alert">
+      <h2 class="h6 mb-2"><%= adminFeedback.title %></h2>
+      <% adminFeedback.messages.forEach((message) => { %>
+        <p class="mb-0"><%= message %></p>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm admin-stat-card"><div class="card-body"><span class="text-secondary small">Total Users</span><h2 class="display-6 fw-bold mb-0"><%= summary.totals.totalUsers %></h2></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm admin-stat-card"><div class="card-body"><span class="text-secondary small">Active Users</span><h2 class="display-6 fw-bold mb-0"><%= summary.totals.activeUsers %></h2></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm admin-stat-card"><div class="card-body"><span class="text-secondary small">Total Listings</span><h2 class="display-6 fw-bold mb-0"><%= summary.totals.totalItems %></h2></div></div></div>
+    <div class="col-md-6 col-xl-3"><div class="card border-0 shadow-sm admin-stat-card"><div class="card-body"><span class="text-secondary small">Resolved Listings</span><h2 class="display-6 fw-bold mb-0"><%= summary.totals.resolvedItems %></h2></div></div></div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-bold mb-0">Recent Users</h2>
+            <a href="/admin/users" class="btn btn-sm btn-outline-primary">Manage Users</a>
+          </div>
+          <% if (summary.recentUsers.length > 0) { %>
+            <div class="list-group list-group-flush">
+              <% summary.recentUsers.forEach((user) => { %>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-start border-0 border-bottom">
+                  <div>
+                    <h3 class="h6 mb-1"><%= user.fullName %></h3>
+                    <p class="small text-secondary mb-1"><%= user.email %></p>
+                    <span class="badge text-bg-light text-dark me-1"><%= user.role %></span>
+                    <span class="badge <%= user.status === 'active' ? 'text-bg-success' : 'text-bg-warning' %>"><%= user.status %></span>
+                  </div>
+                  <small class="text-secondary"><%= new Date(user.createdAt).toLocaleDateString() %></small>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="text-secondary mb-0">No users found yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-bold mb-0">Recent Listings</h2>
+            <a href="/admin/listings" class="btn btn-sm btn-outline-primary">Moderate Listings</a>
+          </div>
+          <% if (summary.recentItems.length > 0) { %>
+            <div class="list-group list-group-flush">
+              <% summary.recentItems.forEach((item) => { %>
+                <div class="list-group-item px-0 d-flex justify-content-between align-items-start border-0 border-bottom">
+                  <div>
+                    <h3 class="h6 mb-1"><%= item.title %></h3>
+                    <p class="small text-secondary mb-1 mb-md-2"><%= item.ownerName %> • <%= item.location %></p>
+                    <span class="badge text-bg-light text-dark me-1"><%= item.type %></span>
+                    <span class="badge <%= item.status === 'resolved' ? 'text-bg-success' : 'text-bg-primary' %>"><%= item.status %></span>
+                  </div>
+                  <small class="text-secondary"><%= item.incidentDate %></small>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="text-secondary mb-0">No listings found yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
     <div class="card-body p-4">
-      <h2 class="h5 fw-bold">Phase 2 checkpoint</h2>
-      <p class="text-secondary mb-0">This page confirms that role-based authorization is working for admin users.</p>
+      <h2 class="h5 fw-bold mb-3">Quick Breakdown</h2>
+      <div class="row g-3">
+        <div class="col-md-3"><div class="admin-pill">Admins: <strong><%= summary.totals.adminUsers %></strong></div></div>
+        <div class="col-md-3"><div class="admin-pill">Suspended users: <strong><%= summary.totals.suspendedUsers %></strong></div></div>
+        <div class="col-md-3"><div class="admin-pill">Active listings: <strong><%= summary.totals.activeItems %></strong></div></div>
+        <div class="col-md-3"><div class="admin-pill">Lost vs Found: <strong><%= summary.totals.lostItems %> / <%= summary.totals.foundItems %></strong></div></div>
+      </div>
     </div>
   </div>
 </section>

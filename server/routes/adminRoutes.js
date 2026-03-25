@@ -5,6 +5,13 @@ import { requireRole } from '../middleware/roleMiddleware.js';
 
 const router = Router();
 
-router.get('/dashboard', requireAuth, requireRole('admin'), adminController.renderDashboard);
+router.use(requireAuth, requireRole('admin'));
+
+router.get('/dashboard', adminController.renderDashboard);
+router.get('/users', adminController.renderUsers);
+router.post('/users/:id/toggle-status', adminController.toggleUserStatus);
+router.get('/listings', adminController.renderListings);
+router.post('/listings/:id/resolve', adminController.resolveItem);
+router.post('/listings/:id/delete', adminController.deleteItem);
 
 export default router;
