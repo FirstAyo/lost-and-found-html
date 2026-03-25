@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import mongoose from 'mongoose';
 import { itemService } from '../services/itemService.js';
 import { getUploadErrorMessage } from '../middleware/uploadMiddleware.js';
+import { logAction } from '../middleware/logAction.js';
 
 const ITEM_TYPES = ['lost', 'found'];
 const CATEGORIES = ['Electronics', 'Wallet', 'Keys', 'Documents', 'Bag', 'Clothing', 'Other'];
@@ -166,7 +167,7 @@ export const itemController = {
         return res.redirect(buildRedirectPath(itemType));
       }
 
-      await itemService.createItem(
+      const createdItem = await itemService.createItem(
         {
           ...payload,
           incidentDate: new Date(payload.incidentDate),
@@ -174,6 +175,13 @@ export const itemController = {
         },
         req.session.user.id
       );
+
+      await logAction(req, {
+        action: 'item_create',
+        outcome: 'success',
+        statusCode: 302,
+        metadata: { itemId: createdItem.id, itemType: itemType, title: createdItem.title }
+      });
 
       setItemFeedback(req, {
         type: 'success',
@@ -214,7 +222,7 @@ export const itemController = {
     }
   },
 
-    async renderDetails(req, res, next) {
+  async renderDetails(req, res, next) {
     try {
       const { id } = req.params;
       if (!mongoose.isValidObjectId(id)) {
@@ -295,4 +303,3 @@ export const itemController = {
     }
   }
 };
-  

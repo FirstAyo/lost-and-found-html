@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';
 import { Item } from '../models/Item.js';
+import { logService } from './logService.js';
 
 function mapUserForAdmin(userDocument) {
   const user = userDocument.toObject ? userDocument.toObject({ virtuals: true }) : userDocument;
@@ -201,6 +202,10 @@ export const adminService = {
       .lean({ virtuals: true });
 
     return item ? mapItemForAdmin(item) : null;
+  },
+
+  async getLogSummary(filters = {}) {
+    return logService.getLogSummary(filters);
   },
 
   async markItemResolved(itemId) {

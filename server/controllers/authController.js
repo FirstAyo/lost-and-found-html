@@ -1,4 +1,5 @@
 import { User } from '../models/User.js';
+import { logService } from '../services/logService.js';
 
 function normalizeAuthInput(payload = {}) {
   return {
@@ -55,6 +56,17 @@ export const authController = {
           email: payload.email
         }
       });
+      await logService.createLog({
+        userRole: 'guest',
+        action: 'register_attempt',
+        outcome: 'failure',
+        method: req.method,
+        route: req.originalUrl,
+        statusCode: 302,
+        ipAddress: req.ip,
+        metadata: { email: payload.email, errors }
+      });
+
       return res.redirect('/register');
     }
 
@@ -67,6 +79,30 @@ export const authController = {
     });
 
     req.session.user = user.toSessionUser();
+
+    await logService.createLog({
+      userId: user._id,
+      userRole: user.role,
+      action: 'login_success',
+      outcome: 'success',
+      method: req.method,
+      route: req.originalUrl,
+      statusCode: 302,
+      ipAddress: req.ip,
+      metadata: { email: user.email }
+    });
+
+    await logService.createLog({
+      userId: user._id,
+      userRole: user.role,
+      action: 'register_success',
+      outcome: 'success',
+      method: req.method,
+      route: req.originalUrl,
+      statusCode: 302,
+      ipAddress: req.ip,
+      metadata: { email: user.email }
+    });
     req.session.authFeedback = {
       type: 'success',
       title: 'Account created',
@@ -104,6 +140,17 @@ export const authController = {
           email: payload.email
         }
       });
+      await logService.createLog({
+        userRole: 'guest',
+        action: 'login_attempt',
+        outcome: 'failure',
+        method: req.method,
+        route: req.originalUrl,
+        statusCode: 302,
+        ipAddress: req.ip,
+        metadata: { email: payload.email, errors }
+      });
+
       return res.redirect('/login');
     }
 
@@ -118,9 +165,25 @@ export const authController = {
   },
 
   logout(req, res, next) {
-    req.session.destroy((error) => {
+    const currentUser = req.session?.user || null;
+
+    req.session.destroy(async (error) => {
       if (error) {
         return next(error);
+      }
+
+      if (currentUser) {
+        await logService.createLog({
+          userId: currentUser.id,
+          userRole: currentUser.role,
+          action: 'logout',
+          outcome: 'success',
+          method: req.method,
+          route: req.originalUrl,
+          statusCode: 302,
+          ipAddress: req.ip,
+          metadata: { email: currentUser.email }
+        });
       }
 
       res.clearCookie('connect.sid');

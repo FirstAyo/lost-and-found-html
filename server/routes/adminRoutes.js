@@ -9,6 +9,7 @@ router.use(requireAuth, requireRole('admin'));
 
 router.get('/dashboard', adminController.renderDashboard);
 router.get('/users', adminController.renderUsers);
+router.get('/logs', adminController.renderLogs);
 router.post('/users/:id/toggle-status', adminController.toggleUserStatus);
 router.get('/listings', adminController.renderListings);
 router.post('/listings/:id/resolve', adminController.resolveItem);
