@@ -1,0 +1,73 @@
+<section class="container">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
+    <div>
+      <p class="text-uppercase small fw-semibold text-primary mb-1">Browse listings</p>
+      <h1 class="display-6 fw-bold mb-0">Search lost and found items</h1>
+    </div>
+    <% if (currentUser) { %>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="/items/new/lost" class="btn btn-outline-primary">Post Lost Item</a>
+        <a href="/items/new/found" class="btn btn-primary">Post Found Item</a>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <form class="row g-3 align-items-end" method="GET" action="/browse">
+        <div class="col-lg-4">
+          <label for="search" class="form-label">Search</label>
+          <input id="search" name="search" type="text" class="form-control" placeholder="Wallet, phone, backpack..." value="<%= filters?.search || '' %>" />
+        </div>
+        <div class="col-md-4 col-lg-2">
+          <label for="type" class="form-label">Type</label>
+          <select id="type" name="type" class="form-select form-control">
+            <option value="">All</option>
+            <option value="lost" <%= filters?.type === 'lost' ? 'selected' : '' %>>Lost</option>
+            <option value="found" <%= filters?.type === 'found' ? 'selected' : '' %>>Found</option>
+          </select>
+        </div>
+        <div class="col-md-4 col-lg-3">
+          <label for="category" class="form-label">Category</label>
+          <select id="category" name="category" class="form-select form-control">
+            <option value="">All categories</option>
+            <% categories.forEach((category) => { %>
+              <option value="<%= category %>" <%= filters?.category === category ? 'selected' : '' %>><%= category %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+          <label for="status" class="form-label">Status</label>
+          <select id="status" name="status" class="form-select form-control">
+            <option value="">All</option>
+            <option value="active" <%= filters?.status === 'active' ? 'selected' : '' %>>Active</option>
+            <option value="resolved" <%= filters?.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+          </select>
+        </div>
+        <div class="col-lg-1 d-grid">
+          <button type="submit" class="btn btn-primary">Go</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <% if (items?.length) { %>
+    <div class="row g-4" data-browse-results>
+      <% items.forEach((item) => { %>
+        <div class="col-md-6 col-xl-4">
+          <%- include('../components/item-card', { item }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-5 text-center">
+        <h2 class="h4 fw-bold">No matching items found</h2>
+        <p class="text-secondary mb-4">Try adjusting your filters or post an item to start building the listing board.</p>
+        <% if (currentUser) { %>
+          <a href="/items/new/lost" class="btn btn-primary">Post an item</a>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+</section>

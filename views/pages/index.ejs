@@ -1,0 +1,59 @@
+<section class="container">
+  <div class="hero-card rounded-4 p-5 shadow-sm overflow-hidden">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="badge text-bg-light mb-3">Lost &amp; Found Platform</span>
+        <h1 class="display-5 fw-bold">Find what is lost. Return what is found.</h1>
+        <p class="lead text-secondary mt-3 mb-4">
+          Report missing items, publish found items, and help your community reconnect people with their belongings.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="/browse" class="btn btn-primary btn-lg">Browse Listings</a>
+          <% if (currentUser) { %>
+            <a href="/items/new/lost" class="btn btn-outline-primary btn-lg">Report Lost Item</a>
+          <% } else { %>
+            <a href="/register" class="btn btn-outline-primary btn-lg">Create Account</a>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="p-4 rounded-4 bg-white border shadow-sm h-100">
+          <h2 class="h5 fw-bold">Now available in Phase 3</h2>
+          <ul class="mb-0 mt-3 text-secondary home-checklist">
+            <li>Member item posting flows</li>
+            <li>Real MongoDB-backed browse page</li>
+            <li>Item detail view for every listing</li>
+            <li>Dashboard summaries for each member</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <p class="text-uppercase small fw-semibold text-primary mb-1">Recent activity</p>
+      <h2 class="h3 fw-bold mb-0">Latest community listings</h2>
+    </div>
+    <a href="/browse" class="btn btn-outline-primary">See all listings</a>
+  </div>
+
+  <% if (featuredItems?.length) { %>
+    <div class="row g-4">
+      <% featuredItems.forEach((item) => { %>
+        <div class="col-md-6 col-xl-4">
+          <%- include('../components/item-card', { item }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4">
+        <h3 class="h5 fw-bold">No listings yet</h3>
+        <p class="text-secondary mb-0">Once members begin posting items, the latest listings will appear here.</p>
+      </div>
+    </div>
+  <% } %>
+</section>

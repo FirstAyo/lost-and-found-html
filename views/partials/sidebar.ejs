@@ -1,0 +1,15 @@
+<div class="dashboard-sidebar py-4">
+  <h2 class="h5 fw-bold mb-1">Dashboard</h2>
+  <p class="text-secondary small mb-4"><%= currentUser?.fullName || 'Guest' %></p>
+  <nav class="nav flex-column gap-2">
+    <a class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>" href="/dashboard">Overview</a>
+    <a class="nav-link <%= currentPath === '/items/mine' ? 'active' : '' %>" href="/items/mine">My Listings</a>
+    <a class="nav-link <%= currentPath === '/items/new/lost' ? 'active' : '' %>" href="/items/new/lost">Post Lost Item</a>
+    <a class="nav-link <%= currentPath === '/items/new/found' ? 'active' : '' %>" href="/items/new/found">Post Found Item</a>
+    <a class="nav-link <%= currentPath === '/browse' ? 'active' : '' %>" href="/browse">Browse Listings</a>
+    <% if (currentUser?.role === 'admin') { %>
+      <hr class="my-2" />
+      <a class="nav-link <%= currentPath === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">Admin Overview</a>
+    <% } %>
+  </nav>
+</div>

@@ -1,0 +1,22 @@
+.stat-card,
+.hero-card,
+.item-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.item-card__media {
+  background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 100%);
+  overflow: hidden;
+}
+
+.item-card__placeholder {
+  background: linear-gradient(135deg, #f8fafc 0%, #eef4ff 100%);
+}
+
+.item-card__description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

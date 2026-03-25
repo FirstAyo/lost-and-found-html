@@ -1,0 +1,76 @@
+<section>
+  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+    <div>
+      <p class="text-uppercase small fw-semibold text-primary mb-1">Member overview</p>
+      <h1 class="h2 fw-bold mb-2">Welcome back, <%= currentUser?.firstName %></h1>
+      <p class="text-secondary mb-0">Track your active listings, publish new reports, and review your recent activity.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/items/new/lost" class="btn btn-outline-primary">Post Lost Item</a>
+      <a href="/items/new/found" class="btn btn-primary">Post Found Item</a>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm stat-card h-100">
+        <div class="card-body">
+          <p class="text-secondary mb-2">Total Listings</p>
+          <h2 class="display-6 fw-bold mb-0"><%= summary.totalItems %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm stat-card h-100">
+        <div class="card-body">
+          <p class="text-secondary mb-2">Active</p>
+          <h2 class="display-6 fw-bold mb-0"><%= summary.activeItems %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm stat-card h-100">
+        <div class="card-body">
+          <p class="text-secondary mb-2">Resolved</p>
+          <h2 class="display-6 fw-bold mb-0"><%= summary.resolvedItems %></h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="card border-0 shadow-sm stat-card h-100">
+        <div class="card-body">
+          <p class="text-secondary mb-2">Lost / Found</p>
+          <h2 class="h3 fw-bold mb-0"><%= summary.lostItems %> / <%= summary.foundItems %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+        <div>
+          <h2 class="h4 fw-bold mb-1">Recent listings</h2>
+          <p class="text-secondary mb-0">Your four most recent lost or found posts.</p>
+        </div>
+        <a href="/items/mine" class="btn btn-outline-primary">View all</a>
+      </div>
+
+      <% if (summary.recentItems?.length) { %>
+        <div class="row g-4">
+          <% summary.recentItems.forEach((item) => { %>
+            <div class="col-md-6">
+              <%- include('../components/item-card', { item }) %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="text-center py-4">
+          <h3 class="h5 fw-bold">No listings yet</h3>
+          <p class="text-secondary mb-4">Create your first lost or found listing to start using the platform.</p>
+          <a href="/items/new/lost" class="btn btn-primary">Create first listing</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>

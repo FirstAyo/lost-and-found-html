@@ -1,0 +1,42 @@
+<section>
+  <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
+    <div>
+      <p class="text-uppercase small fw-semibold text-primary mb-1">My listings</p>
+      <h1 class="h2 fw-bold mb-2">Manage your lost and found posts</h1>
+      <p class="text-secondary mb-0">You can now edit, resolve, and delete your own listings from this dashboard.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/items/new/lost" class="btn btn-outline-primary">Post Lost Item</a>
+      <a href="/items/new/found" class="btn btn-primary">Post Found Item</a>
+    </div>
+  </div>
+
+  <% if (itemFeedback) { %>
+    <div class="alert alert-<%= itemFeedback.type %> mb-4" role="alert">
+      <h2 class="h6 fw-bold mb-2"><%= itemFeedback.title %></h2>
+      <ul class="mb-0 ps-3">
+        <% itemFeedback.messages.forEach((message) => { %>
+          <li><%= message %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <% if (items?.length) { %>
+    <div class="row g-4">
+      <% items.forEach((item) => { %>
+        <div class="col-md-6 col-xl-4">
+          <%- include('../../components/item-card', { item, showOwnerActions: true }) %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-5 text-center">
+        <h2 class="h4 fw-bold">You have not posted anything yet</h2>
+        <p class="text-secondary mb-4">Create your first lost or found listing to start using your dashboard.</p>
+        <a href="/items/new/lost" class="btn btn-primary">Create first listing</a>
+      </div>
+    </div>
+  <% } %>
+</section>

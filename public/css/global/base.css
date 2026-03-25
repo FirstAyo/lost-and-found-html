@@ -1,0 +1,14 @@
+body {
+  background: var(--color-page);
+  color: var(--color-text);
+}
+
+.hero-card,
+.stat-card,
+.card {
+  box-shadow: var(--shadow-soft);
+}
+
+.auth-page-bg {
+  background: linear-gradient(180deg, #f8fafc 0%, #eef4ff 100%);
+}

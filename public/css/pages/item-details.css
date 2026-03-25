@@ -1,0 +1,7 @@
+.item-details-media {
+  background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 100%);
+}
+
+.item-details-meta {
+  color: var(--color-text);
+}

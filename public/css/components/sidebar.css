@@ -1,0 +1,10 @@
+.dashboard-sidebar .nav-link {
+  color: var(--color-text);
+  border-radius: 0.75rem;
+}
+
+.dashboard-sidebar .nav-link.active,
+.dashboard-sidebar .nav-link:hover {
+  background: rgba(13, 110, 253, 0.08);
+  color: var(--color-primary);
+}
