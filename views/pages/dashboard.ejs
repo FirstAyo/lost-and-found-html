@@ -60,7 +60,7 @@
         <div class="row g-4">
           <% summary.recentItems.forEach((item) => { %>
             <div class="col-md-6">
-              <%- include('../components/item-card', { item }) %>
+              <%- include('../components/item-card', { item, showOwnerActions: true }) %>
             </div>
           <% }) %>
         </div>
