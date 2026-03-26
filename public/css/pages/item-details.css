@@ -1,11 +1,63 @@
-.item-details-media {
-  background: linear-gradient(135deg, #eef4ff 0%, #f8fafc 100%);
+.item-details-page {
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
 }
 
-.item-details-meta {
-  color: var(--color-text);
+.item-details-shell {
+  max-width: 960px;
+}
+
+.item-details-media {
+  background: #f8f9fa;
+}
+
+.item-details-media img {
+  display: block;
+}
+
+.map-preview-block,
+.item-meta-card,
+.contact-detail-card,
+.item-description-block {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1rem 1.1rem;
+}
+
+.item-meta-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6c757d;
+  margin-bottom: 0.45rem;
+}
+
+.item-meta-value {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #212529;
+  line-height: 1.45;
+}
+
+.item-description-block p {
+  line-height: 1.75;
 }
 
 .contact-cta {
-  border-color: rgba(13, 110, 253, 0.15) !important;
+  overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+  .item-details-page {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .item-details-shell .card-body {
+    padding: 1.25rem;
+  }
 }

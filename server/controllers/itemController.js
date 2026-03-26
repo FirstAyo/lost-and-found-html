@@ -4,7 +4,7 @@ import { itemService } from '../services/itemService.js';
 import { getUploadErrorMessage } from '../middleware/uploadMiddleware.js';
 import { logAction } from '../middleware/logAction.js';
 import { getCampusLocationOptions, buildCampusDisplayLabel } from '../config/campusLocations.js';
-import { locationService } from '../services/locationService.js';
+import { locationService, geocodeLocation } from '../services/locationService.js';
 
 const ITEM_TYPES = ['lost', 'found'];
 const CONTACT_METHODS = ['email', 'phone', 'both'];

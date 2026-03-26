@@ -89,3 +89,28 @@ export const locationService = {
     };
   },
 };
+
+export async function geocodeLocation(query) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "lost-found-app",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!data || data.length === 0) return null;
+
+    return {
+      lat: data[0].lat,
+      lon: data[0].lon,
+      displayName: data[0].display_name,
+    };
+  } catch (err) {
+    console.error("Geocoding error:", err);
+    return null;
+  }
+}
