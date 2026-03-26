@@ -3,7 +3,7 @@ import {
   buildCampusDisplayLabel,
 } from "../config/campusLocations.js";
 
-//using openstreet Map API to get campus location
+// using OpenStreetMap API to get campus location
 
 function toMapLink(lat, lon, label = "") {
   if (typeof lat !== "number" || typeof lon !== "number") {
@@ -69,7 +69,7 @@ export const locationService = {
       const geocoded = await geocodeQuery(searchQuery);
       if (geocoded) {
         return {
-          label: label || geocoded.label,
+          label: geocoded.label || label,
           searchQuery,
           lat: geocoded.lat,
           lon: geocoded.lon,
@@ -88,26 +88,51 @@ export const locationService = {
       mapLink: "",
     };
   },
+
+  async previewCampusLocation(locationValue, otherText = "") {
+    const label = buildCampusDisplayLabel(locationValue, otherText);
+    const searchQuery = buildCampusSearchQuery(locationValue, otherText);
+
+    try {
+      const geocoded = await geocodeQuery(searchQuery);
+      if (geocoded) {
+        return {
+          success: true,
+          label: geocoded.label || label,
+          searchQuery,
+          lat: geocoded.lat,
+          lon: geocoded.lon,
+          mapLink: geocoded.mapLink,
+        };
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    return {
+      success: false,
+      label,
+      searchQuery,
+      lat: null,
+      lon: null,
+      mapLink: "",
+    };
+  },
 };
 
 export async function geocodeLocation(query) {
   try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+    const geocoded = await geocodeQuery(query);
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "lost-found-app",
-      },
-    });
-
-    const data = await response.json();
-
-    if (!data || data.length === 0) return null;
+    if (!geocoded) {
+      return null;
+    }
 
     return {
-      lat: data[0].lat,
-      lon: data[0].lon,
-      displayName: data[0].display_name,
+      lat: geocoded.lat,
+      lon: geocoded.lon,
+      displayName: geocoded.label,
+      mapLink: geocoded.mapLink,
     };
   } catch (err) {
     console.error("Geocoding error:", err);

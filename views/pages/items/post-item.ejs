@@ -28,6 +28,7 @@
           <label for="title" class="form-label">Item title</label>
           <input id="title" name="title" type="text" class="form-control" value="<%= formValues.title %>" placeholder="Black leather wallet" required />
         </div>
+
         <div class="col-md-6">
           <label for="category" class="form-label">Category</label>
           <select id="category" name="category" class="form-select form-control" required>
@@ -37,6 +38,7 @@
             <% }) %>
           </select>
         </div>
+
         <div class="col-md-6">
           <label for="incidentDate" class="form-label"><%= itemType === 'lost' ? 'Date lost' : 'Date found' %></label>
           <input id="incidentDate" name="incidentDate" type="date" class="form-control" value="<%= formValues.incidentDate %>" required />
@@ -48,6 +50,7 @@
             <input id="lastSeenLocation" name="lastSeenLocation" type="text" class="form-control" value="<%= formValues.lastSeenLocation %>" placeholder="Library entrance, A building hallway..." required />
             <input type="hidden" name="location" value="<%= formValues.lastSeenLocation || formValues.location %>" />
           </div>
+
           <div class="col-12">
             <label for="lastSeenNotes" class="form-label">Last seen notes (optional)</label>
             <textarea id="lastSeenNotes" name="lastSeenNotes" class="form-control post-item-textarea-sm" rows="3" placeholder="Anything helpful about where or when you last saw it."><%= formValues.lastSeenNotes %></textarea>
@@ -55,35 +58,70 @@
         <% } else { %>
           <div class="col-md-6">
             <label for="foundLocation" class="form-label">Where was it found on Langara campus?</label>
-            <select id="foundLocation" name="foundLocation" class="form-select campus-select" data-other-target="foundLocationOther" required>
+            <select id="foundLocation" name="foundLocation" class="form-select campus-select" data-other-target="foundLocationOther" data-preview-type="found" required>
               <option value="">Choose a location</option>
               <% campusLocations.forEach((location) => { %>
                 <option value="<%= location.value %>" <%= formValues.foundLocation === location.value ? 'selected' : '' %>><%= location.label %></option>
               <% }) %>
             </select>
           </div>
+
           <div class="col-md-6 <%= formValues.foundLocation === 'other' ? '' : 'd-none' %>" data-other-wrapper="foundLocationOther">
             <label for="foundLocationOther" class="form-label">Describe the found location</label>
             <input id="foundLocationOther" name="foundLocationOther" type="text" class="form-control" value="<%= formValues.foundLocationOther %>" placeholder="Near the library printers" />
           </div>
+
+          <div class="col-12">
+            <div id="foundLocationPreview" class="campus-api-preview d-none">
+              <div class="campus-api-preview__status text-muted small mb-2" data-preview-status="found"></div>
+              <div class="alert alert-info mb-0">
+                <p class="text-uppercase small fw-semibold text-primary mb-1">Map API preview</p>
+                <h3 class="h6 fw-bold mb-2">Resolved campus location</h3>
+                <p class="mb-2" data-preview-label="found"></p>
+                <p class="small mb-3" data-preview-coords="found"></p>
+                <a href="#" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-primary d-none" data-preview-link="found">
+                  View on map
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div class="col-12">
             <label for="foundLocationNotes" class="form-label">Found location notes (optional)</label>
             <textarea id="foundLocationNotes" name="foundLocationNotes" class="form-control post-item-textarea-sm" rows="3" placeholder="Helpful details, nearby landmarks, time found, etc."><%= formValues.foundLocationNotes %></textarea>
             <input type="hidden" name="location" value="<%= formValues.location %>" />
           </div>
+
           <div class="col-md-6">
             <label for="pickupLocation" class="form-label">Pickup / verification point on campus</label>
-            <select id="pickupLocation" name="pickupLocation" class="form-select campus-select" data-other-target="pickupLocationOther" required>
+            <select id="pickupLocation" name="pickupLocation" class="form-select campus-select" data-other-target="pickupLocationOther" data-preview-type="pickup" required>
               <option value="">Choose a pickup location</option>
               <% campusLocations.forEach((location) => { %>
                 <option value="<%= location.value %>" <%= formValues.pickupLocation === location.value ? 'selected' : '' %>><%= location.label %></option>
               <% }) %>
             </select>
           </div>
+
           <div class="col-md-6 <%= formValues.pickupLocation === 'other' ? '' : 'd-none' %>" data-other-wrapper="pickupLocationOther">
             <label for="pickupLocationOther" class="form-label">Describe the pickup location</label>
             <input id="pickupLocationOther" name="pickupLocationOther" type="text" class="form-control" value="<%= formValues.pickupLocationOther %>" placeholder="Security desk in B building" />
           </div>
+
+          <div class="col-12">
+            <div id="pickupLocationPreview" class="campus-api-preview d-none">
+              <div class="campus-api-preview__status text-muted small mb-2" data-preview-status="pickup"></div>
+              <div class="alert alert-secondary mb-0">
+                <p class="text-uppercase small fw-semibold text-primary mb-1">Pickup point preview</p>
+                <h3 class="h6 fw-bold mb-2">Resolved pickup location</h3>
+                <p class="mb-2" data-preview-label="pickup"></p>
+                <p class="small mb-3" data-preview-coords="pickup"></p>
+                <a href="#" target="_blank" rel="noreferrer" class="btn btn-sm btn-outline-secondary d-none" data-preview-link="pickup">
+                  View on map
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div class="col-12">
             <label for="pickupInstructions" class="form-label">Pickup instructions</label>
             <textarea id="pickupInstructions" name="pickupInstructions" class="form-control post-item-textarea-sm" rows="3" placeholder="Tell the owner how to verify the item and where to meet you."><%= formValues.pickupInstructions %></textarea>
@@ -95,6 +133,7 @@
           <input id="image" name="image" type="file" class="form-control" accept="image/png,image/jpeg,image/webp" />
           <div class="form-text">Accepted formats: JPG, PNG, WebP. Maximum size: 3 MB.</div>
         </div>
+
         <div class="col-12">
           <label for="description" class="form-label">Description</label>
           <textarea id="description" name="description" class="form-control post-item-textarea" rows="6" placeholder="Describe the item, colors, identifying marks, and anything else useful." required><%= formValues.description %></textarea>
