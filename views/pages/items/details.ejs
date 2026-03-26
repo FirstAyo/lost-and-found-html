@@ -1,6 +1,24 @@
 <section class="container item-details-page">
-  <div class="mx-auto item-details-shell">
+  <% 
+    const mapsApiKey = typeof googleMapsApiKey !== 'undefined' ? googleMapsApiKey : '';
 
+    const foundMapLabel =
+      item?.foundLocationPreview?.label ||
+      item?.foundLocationLabel ||
+      item?.location ||
+      'Langara College, 100 W 49th Ave, Vancouver, BC, Canada';
+
+    const pickupMapLabel =
+      item?.pickupLocationPreview?.label ||
+      item?.pickupLocationLabel ||
+      'Langara College, 100 W 49th Ave, Vancouver, BC, Canada';
+
+    const hasFoundMapData = item?.type === 'found' && Boolean(foundMapLabel);
+    const hasPickupMapData = item?.type === 'found' && Boolean(pickupMapLabel);
+    const showMapSection = hasFoundMapData || hasPickupMapData;
+  %>
+
+  <div class="mx-auto item-details-shell">
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
       <div class="ratio ratio-16x9 item-details-media">
         <% if (item.imagePath) { %>
@@ -17,19 +35,19 @@
       </div>
     </div>
 
-    <% if (item.type === 'found' && (item.foundLocationPreview?.mapLink || item.pickupLocationPreview?.mapLink)) { %>
+    <% if (showMapSection) { %>
       <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body p-4">
           <p class="text-uppercase small fw-semibold text-primary mb-1">Campus map support</p>
           <h2 class="h5 fw-bold mb-3">Location preview</h2>
 
           <div class="row g-3">
-            <% if (item.foundLocationPreview?.mapLink) { %>
+            <% if (hasFoundMapData) { %>
               <div class="col-md-6">
                 <div class="map-preview-block h-100">
                   <p class="small text-secondary mb-2">Found location</p>
                   <p class="fw-semibold mb-2">
-                    <%= item.foundLocationPreview.label || item.foundLocationLabel || item.location %>
+                    <%= foundMapLabel %>
                   </p>
 
                   <% if (item.foundLocationPreview?.usedCampusFallback) { %>
@@ -39,7 +57,7 @@
                   <% } %>
 
                   <a
-                    href="<%= item.foundLocationPreview.mapLink %>"
+                    href="<%= item.foundLocationPreview?.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(foundMapLabel)}` %>"
                     target="_blank"
                     rel="noreferrer"
                     class="btn btn-outline-primary w-100 mb-3"
@@ -57,7 +75,7 @@
                         loading="lazy"
                         allowfullscreen
                         referrerpolicy="no-referrer-when-downgrade"
-                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(item.foundLocationPreview.label || item.foundLocationLabel || item.location || 'Langara College Vancouver') %>">
+                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(foundMapLabel) %>">
                       </iframe>
                     </div>
                   <% } else { %>
@@ -70,12 +88,12 @@
               </div>
             <% } %>
 
-            <% if (item.pickupLocationPreview?.mapLink) { %>
+            <% if (hasPickupMapData) { %>
               <div class="col-md-6">
                 <div class="map-preview-block h-100">
                   <p class="small text-secondary mb-2">Pickup point</p>
                   <p class="fw-semibold mb-2">
-                    <%= item.pickupLocationPreview.label || item.pickupLocationLabel %>
+                    <%= pickupMapLabel %>
                   </p>
 
                   <% if (item.pickupLocationPreview?.usedCampusFallback) { %>
@@ -85,7 +103,7 @@
                   <% } %>
 
                   <a
-                    href="<%= item.pickupLocationPreview.mapLink %>"
+                    href="<%= item.pickupLocationPreview?.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pickupMapLabel)}` %>"
                     target="_blank"
                     rel="noreferrer"
                     class="btn btn-outline-secondary w-100 mb-3"
@@ -103,7 +121,7 @@
                         loading="lazy"
                         allowfullscreen
                         referrerpolicy="no-referrer-when-downgrade"
-                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(item.pickupLocationPreview.label || item.pickupLocationLabel || 'Langara College Vancouver') %>">
+                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(pickupMapLabel) %>">
                       </iframe>
                     </div>
                   <% } else { %>
