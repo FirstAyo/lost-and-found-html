@@ -382,6 +382,104 @@ export const itemController = {
     }
   },
 
+  async renderEditItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const item = await itemService.getItemById(id);
+
+      if (!item) {
+        return res.redirect("/items/mine");
+      }
+
+      // Optional: ensure only owner can edit
+      if (item.ownerId.toString() !== req.session.user.id) {
+        return res.redirect("/items/mine");
+      }
+
+      return res.render("pages/items/post-item", {
+        title: "Edit Item",
+        layout: "layouts/dashboard",
+        pageCss: "pages/post-item.css",
+        pageJs: "pages/post-item.js",
+        formTitle: "Edit your item",
+        submitLabel: "Update Item",
+        itemType: item.type,
+        categories: CATEGORIES,
+        campusLocations: CAMPUS_LOCATION_OPTIONS,
+        contactMethods: CONTACT_METHODS,
+        values: item,
+        isEdit: true,
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  async updateItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const item = await itemService.getItemById(id);
+      if (!item) return res.redirect("/items/mine");
+
+      const payload = normalizeItemPayload(
+        req.body,
+        item.type,
+        req.session.user,
+      );
+
+      const errors = validateItemPayload(payload);
+
+      if (errors.length > 0) {
+        setItemFeedback(req, {
+          type: "danger",
+          title: "Update failed",
+          messages: errors,
+        });
+        return res.redirect(`/items/edit/${id}`);
+      }
+
+      const locationPayload = await buildLocationPayload(payload);
+
+      await itemService.updateItem(id, {
+        ...payload,
+        ...locationPayload,
+        incidentDate: new Date(payload.incidentDate),
+        ...(req.file && { imagePath: `/uploads/${req.file.filename}` }),
+      });
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  async markAsResolved(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      await itemService.updateItem(id, { status: "resolved" });
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  async deleteItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      await itemService.deleteItem(id);
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async renderDetails(req, res, next) {
     try {
       const { id } = req.params;
