@@ -2,3 +2,8 @@
   min-height: 10rem;
   resize: vertical;
 }
+
+.post-item-textarea-sm {
+  min-height: 6rem;
+  resize: vertical;
+}

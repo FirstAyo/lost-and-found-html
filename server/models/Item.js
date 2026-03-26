@@ -1,5 +1,16 @@
 import mongoose from 'mongoose';
 
+const locationPreviewSchema = new mongoose.Schema(
+  {
+    label: { type: String, trim: true, default: '' },
+    searchQuery: { type: String, trim: true, default: '' },
+    lat: { type: Number, default: null },
+    lon: { type: Number, default: null },
+    mapLink: { type: String, trim: true, default: '' }
+  },
+  { _id: false }
+);
+
 const itemSchema = new mongoose.Schema(
   {
     title: {
@@ -54,6 +65,76 @@ const itemSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
       index: true
+    },
+    lastSeenLocation: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    lastSeenNotes: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+      default: ''
+    },
+    foundLocation: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    foundLocationOther: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: ''
+    },
+    foundLocationNotes: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+      default: ''
+    },
+    pickupLocation: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    pickupLocationOther: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: ''
+    },
+    pickupInstructions: {
+      type: String,
+      trim: true,
+      maxlength: 400,
+      default: ''
+    },
+    contactMethod: {
+      type: String,
+      enum: ['email', 'phone', 'both'],
+      default: 'email'
+    },
+    contactEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: ''
+    },
+    contactPhone: {
+      type: String,
+      trim: true,
+      maxlength: 40,
+      default: ''
+    },
+    foundLocationPreview: {
+      type: locationPreviewSchema,
+      default: () => ({})
+    },
+    pickupLocationPreview: {
+      type: locationPreviewSchema,
+      default: () => ({})
     }
   },
   {

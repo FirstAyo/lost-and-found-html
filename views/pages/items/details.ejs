@@ -1,7 +1,7 @@
 <section class="container">
   <div class="row g-4 align-items-start">
     <div class="col-lg-6">
-      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
         <div class="ratio ratio-4x3 item-details-media">
           <% if (item.imagePath) { %>
             <img src="<%= item.imagePath %>" class="w-100 h-100 object-fit-cover" alt="<%= item.title %>" />
@@ -10,6 +10,23 @@
           <% } %>
         </div>
       </div>
+
+      <% if (item.type === 'found' && (item.foundLocationPreview?.mapLink || item.pickupLocationPreview?.mapLink)) { %>
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <p class="text-uppercase small fw-semibold text-primary mb-1">Campus map support</p>
+            <h2 class="h5 fw-bold mb-3">Location preview</h2>
+            <div class="d-grid gap-2">
+              <% if (item.foundLocationPreview?.mapLink) { %>
+                <a href="<%= item.foundLocationPreview.mapLink %>" target="_blank" rel="noreferrer" class="btn btn-outline-primary">Open found location in map</a>
+              <% } %>
+              <% if (item.pickupLocationPreview?.mapLink) { %>
+                <a href="<%= item.pickupLocationPreview.mapLink %>" target="_blank" rel="noreferrer" class="btn btn-outline-secondary">Open pickup point in map</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% } %>
     </div>
 
     <div class="col-lg-6">
@@ -26,13 +43,56 @@
           <div class="row g-3 small item-details-meta mb-4">
             <div class="col-sm-6"><strong>Category:</strong> <%= item.category %></div>
             <div class="col-sm-6"><strong>Status:</strong> <%= item.status %></div>
-            <div class="col-sm-6"><strong>Location:</strong> <%= item.location %></div>
             <div class="col-sm-6"><strong>Date:</strong> <%= item.incidentDate %></div>
-            <div class="col-12"><strong>Posted by:</strong> <%= item.ownerName %></div>
+            <div class="col-sm-6"><strong>Posted by:</strong> <%= item.ownerName %></div>
+
+            <% if (item.type === 'lost') { %>
+              <div class="col-12"><strong>Last seen on campus:</strong> <%= item.lastSeenLocation || item.location %></div>
+              <% if (item.lastSeenNotes) { %>
+                <div class="col-12"><strong>Last seen notes:</strong> <%= item.lastSeenNotes %></div>
+              <% } %>
+            <% } else { %>
+              <div class="col-12"><strong>Found on campus:</strong> <%= item.foundLocationLabel || item.location %></div>
+              <% if (item.foundLocationNotes) { %>
+                <div class="col-12"><strong>Found location notes:</strong> <%= item.foundLocationNotes %></div>
+              <% } %>
+              <% if (item.pickupLocationLabel) { %>
+                <div class="col-12"><strong>Pickup location:</strong> <%= item.pickupLocationLabel %></div>
+              <% } %>
+              <% if (item.pickupInstructions) { %>
+                <div class="col-12"><strong>Pickup instructions:</strong> <%= item.pickupInstructions %></div>
+              <% } %>
+            <% } %>
           </div>
 
           <h2 class="h5 fw-bold">Description</h2>
           <p class="text-secondary mb-4"><%= item.description %></p>
+
+          <% if (item.type === 'found') { %>
+            <div class="contact-cta card border rounded-4 bg-light-subtle mb-4">
+              <div class="card-body p-4">
+                <p class="text-uppercase small fw-semibold text-primary mb-1">Claim workflow</p>
+                <h2 class="h5 fw-bold mb-2">Need to contact the finder?</h2>
+                <p class="text-secondary mb-3">Use the contact details below to arrange verification and pickup on the Langara campus.</p>
+
+                <div class="row g-2 small mb-3">
+                  <div class="col-12"><strong>Preferred method:</strong> <%= item.contactMethod %></div>
+                  <% if (item.contactEmail) { %>
+                    <div class="col-12"><strong>Email:</strong> <a href="mailto:<%= item.contactEmail %>"><%= item.contactEmail %></a></div>
+                  <% } %>
+                  <% if (item.contactPhone) { %>
+                    <div class="col-12"><strong>Phone:</strong> <a href="tel:<%= item.contactPhone %>"><%= item.contactPhone %></a></div>
+                  <% } %>
+                </div>
+
+                <% if (item.contactEmail) { %>
+                  <a class="btn btn-primary" href="mailto:<%= item.contactEmail %>?subject=<%= encodeURIComponent('Claim request for ' + item.title) %>">Contact finder</a>
+                <% } else if (item.contactPhone) { %>
+                  <a class="btn btn-primary" href="tel:<%= item.contactPhone %>">Call finder</a>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
 
           <div class="d-flex gap-2 flex-wrap">
             <a href="/browse" class="btn btn-outline-secondary">Back to browse</a>

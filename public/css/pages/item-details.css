@@ -5,3 +5,7 @@
 .item-details-meta {
   color: var(--color-text);
 }
+
+.contact-cta {
+  border-color: rgba(13, 110, 253, 0.15) !important;
+}

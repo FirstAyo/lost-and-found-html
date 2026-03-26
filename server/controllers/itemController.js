@@ -3,34 +3,70 @@ import mongoose from 'mongoose';
 import { itemService } from '../services/itemService.js';
 import { getUploadErrorMessage } from '../middleware/uploadMiddleware.js';
 import { logAction } from '../middleware/logAction.js';
+import { getCampusLocationOptions, buildCampusDisplayLabel } from '../config/campusLocations.js';
+import { locationService } from '../services/locationService.js';
 
 const ITEM_TYPES = ['lost', 'found'];
+const CONTACT_METHODS = ['email', 'phone', 'both'];
 const CATEGORIES = ['Electronics', 'Wallet', 'Keys', 'Documents', 'Bag', 'Clothing', 'Other'];
+const CAMPUS_LOCATION_OPTIONS = getCampusLocationOptions();
 
-function buildItemFormDefaults(type = 'lost') {
+function buildItemFormDefaults(type = 'lost', currentUser = null) {
   return {
     title: '',
     type,
     category: '',
     description: '',
     location: '',
-    incidentDate: ''
+    incidentDate: '',
+    lastSeenLocation: '',
+    lastSeenNotes: '',
+    foundLocation: '',
+    foundLocationOther: '',
+    foundLocationNotes: '',
+    pickupLocation: '',
+    pickupLocationOther: '',
+    pickupInstructions: '',
+    contactMethod: 'email',
+    contactEmail: currentUser?.email || '',
+    contactPhone: ''
   };
 }
 
-function normalizeItemPayload(payload = {}, type = 'lost') {
+function normalizeItemPayload(payload = {}, type = 'lost', currentUser = null) {
   return {
     title: String(payload.title || '').trim(),
     type,
     category: String(payload.category || '').trim(),
     description: String(payload.description || '').trim(),
     location: String(payload.location || '').trim(),
-    incidentDate: String(payload.incidentDate || '').trim()
+    incidentDate: String(payload.incidentDate || '').trim(),
+    lastSeenLocation: String(payload.lastSeenLocation || '').trim(),
+    lastSeenNotes: String(payload.lastSeenNotes || '').trim(),
+    foundLocation: String(payload.foundLocation || '').trim(),
+    foundLocationOther: String(payload.foundLocationOther || '').trim(),
+    foundLocationNotes: String(payload.foundLocationNotes || '').trim(),
+    pickupLocation: String(payload.pickupLocation || '').trim(),
+    pickupLocationOther: String(payload.pickupLocationOther || '').trim(),
+    pickupInstructions: String(payload.pickupInstructions || '').trim(),
+    contactMethod: String(payload.contactMethod || 'email').trim(),
+    contactEmail: String(payload.contactEmail || currentUser?.email || '').trim().toLowerCase(),
+    contactPhone: String(payload.contactPhone || '').trim()
   };
+}
+
+function deriveLegacyLocation(payload) {
+  if (payload.type === 'found') {
+    const foundLabel = buildCampusDisplayLabel(payload.foundLocation, payload.foundLocationOther);
+    return foundLabel || payload.location || 'Langara campus';
+  }
+
+  return payload.lastSeenLocation || payload.location || 'Langara campus';
 }
 
 function validateItemPayload(payload) {
   const errors = [];
+  const campusValues = CAMPUS_LOCATION_OPTIONS.map((location) => location.value);
 
   if (payload.title.length < 3) {
     errors.push('Title must be at least 3 characters long.');
@@ -44,13 +80,45 @@ function validateItemPayload(payload) {
     errors.push('Description must be at least 10 characters long.');
   }
 
-  if (payload.location.length < 2) {
-    errors.push('Location is required.');
-  }
-
   const parsedDate = new Date(payload.incidentDate);
   if (Number.isNaN(parsedDate.getTime())) {
     errors.push('Please enter a valid date.');
+  }
+
+  if (payload.type === 'lost') {
+    if (payload.lastSeenLocation.length < 2 && payload.location.length < 2) {
+      errors.push('Please enter where the item was last seen on campus.');
+    }
+  }
+
+  if (payload.type === 'found') {
+    if (!campusValues.includes(payload.foundLocation)) {
+      errors.push('Please choose where on Langara campus the item was found.');
+    }
+
+    if (payload.foundLocation === 'other' && payload.foundLocationOther.length < 2) {
+      errors.push('Please describe the found location when selecting Other.');
+    }
+
+    if (!campusValues.includes(payload.pickupLocation)) {
+      errors.push('Please choose where the owner can pick up the item.');
+    }
+
+    if (payload.pickupLocation === 'other' && payload.pickupLocationOther.length < 2) {
+      errors.push('Please describe the pickup location when selecting Other.');
+    }
+  }
+
+  if (!CONTACT_METHODS.includes(payload.contactMethod)) {
+    errors.push('Please choose a valid contact method.');
+  }
+
+  if ((payload.contactMethod === 'email' || payload.contactMethod === 'both') && !payload.contactEmail.includes('@')) {
+    errors.push('Please enter a valid contact email.');
+  }
+
+  if ((payload.contactMethod === 'phone' || payload.contactMethod === 'both') && payload.contactPhone.length < 7) {
+    errors.push('Please enter a valid contact phone number.');
   }
 
   return errors;
@@ -82,6 +150,41 @@ async function deleteUploadedFile(file) {
 
 function buildRedirectPath(itemType) {
   return itemType === 'lost' ? '/items/new/lost' : '/items/new/found';
+}
+
+async function buildLocationPayload(payload) {
+  const legacyLocation = deriveLegacyLocation(payload);
+
+  if (payload.type === 'lost') {
+    return {
+      location: legacyLocation,
+      lastSeenLocation: payload.lastSeenLocation || legacyLocation,
+      lastSeenNotes: payload.lastSeenNotes,
+      contactMethod: payload.contactMethod,
+      contactEmail: payload.contactEmail,
+      contactPhone: payload.contactPhone
+    };
+  }
+
+  const [foundLocationPreview, pickupLocationPreview] = await Promise.all([
+    locationService.buildCampusLocationPreview(payload.foundLocation, payload.foundLocationOther),
+    locationService.buildCampusLocationPreview(payload.pickupLocation, payload.pickupLocationOther)
+  ]);
+
+  return {
+    location: legacyLocation,
+    foundLocation: payload.foundLocation,
+    foundLocationOther: payload.foundLocationOther,
+    foundLocationNotes: payload.foundLocationNotes,
+    pickupLocation: payload.pickupLocation,
+    pickupLocationOther: payload.pickupLocationOther,
+    pickupInstructions: payload.pickupInstructions,
+    contactMethod: payload.contactMethod,
+    contactEmail: payload.contactEmail,
+    contactPhone: payload.contactPhone,
+    foundLocationPreview,
+    pickupLocationPreview
+  };
 }
 
 export const itemController = {
@@ -116,12 +219,14 @@ export const itemController = {
       pageCss: 'pages/post-item.css',
       pageJs: 'pages/post-item.js',
       formTitle: 'Report a lost item',
-      formSubtitle: 'Provide enough detail so other members can help identify your missing item.',
+      formSubtitle: 'Record where on the Langara campus you last saw the item and how people can reach you.',
       submitLabel: 'Publish Lost Item',
       itemType: 'lost',
       categories: CATEGORIES,
+      campusLocations: CAMPUS_LOCATION_OPTIONS,
+      contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
-      values: buildItemFormDefaults('lost')
+      values: buildItemFormDefaults('lost', req.session.user)
     });
   },
 
@@ -132,12 +237,14 @@ export const itemController = {
       pageCss: 'pages/post-item.css',
       pageJs: 'pages/post-item.js',
       formTitle: 'Report a found item',
-      formSubtitle: 'Share where you found the item and enough detail to help the owner claim it.',
+      formSubtitle: 'Show exactly where on the Langara campus the item was found and where the owner can verify and collect it.',
       submitLabel: 'Publish Found Item',
       itemType: 'found',
       categories: CATEGORIES,
+      campusLocations: CAMPUS_LOCATION_OPTIONS,
+      contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
-      values: buildItemFormDefaults('found')
+      values: buildItemFormDefaults('found', req.session.user)
     });
   },
 
@@ -149,7 +256,7 @@ export const itemController = {
         return res.status(400).redirect('/dashboard');
       }
 
-      const payload = normalizeItemPayload(req.body, itemType);
+      const payload = normalizeItemPayload(req.body, itemType, req.session.user);
       const errors = validateItemPayload(payload);
 
       if (req.fileValidationError) {
@@ -167,11 +274,16 @@ export const itemController = {
         return res.redirect(buildRedirectPath(itemType));
       }
 
+      const locationPayload = await buildLocationPayload(payload);
       const createdItem = await itemService.createItem(
         {
-          ...payload,
+          title: payload.title,
+          type: itemType,
+          category: payload.category,
+          description: payload.description,
           incidentDate: new Date(payload.incidentDate),
-          imagePath: req.file ? `/uploads/${req.file.filename}` : ''
+          imagePath: req.file ? `/uploads/${req.file.filename}` : '',
+          ...locationPayload
         },
         req.session.user.id
       );
@@ -180,7 +292,7 @@ export const itemController = {
         action: 'item_create',
         outcome: 'success',
         statusCode: 302,
-        metadata: { itemId: createdItem.id, itemType: itemType, title: createdItem.title }
+        metadata: { itemId: createdItem.id, itemType, title: createdItem.title }
       });
 
       setItemFeedback(req, {
@@ -265,10 +377,7 @@ export const itemController = {
 
       const items = await itemService.getBrowseItems(filters);
 
-      return res.status(200).json({
-        success: true,
-        items
-      });
+      return res.status(200).json({ success: true, items });
     } catch (error) {
       return next(error);
     }
@@ -279,25 +388,16 @@ export const itemController = {
       const { id } = req.params;
 
       if (!mongoose.isValidObjectId(id)) {
-        return res.status(404).json({
-          success: false,
-          message: 'Item not found.'
-        });
+        return res.status(404).json({ success: false, message: 'Item not found.' });
       }
 
       const item = await itemService.getItemById(id);
 
       if (!item) {
-        return res.status(404).json({
-          success: false,
-          message: 'Item not found.'
-        });
+        return res.status(404).json({ success: false, message: 'Item not found.' });
       }
 
-      return res.status(200).json({
-        success: true,
-        item
-      });
+      return res.status(200).json({ success: true, item });
     } catch (error) {
       return next(error);
     }

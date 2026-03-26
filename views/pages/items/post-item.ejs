@@ -8,6 +8,8 @@
     <a href="/items/mine" class="btn btn-outline-secondary">Back to my listings</a>
   </div>
 
+  <% const formValues = itemFeedback?.values || values; %>
+
   <% if (itemFeedback) { %>
     <div class="alert alert-<%= itemFeedback.type %> mb-4" role="alert">
       <h2 class="h6 fw-bold mb-2"><%= itemFeedback.title %></h2>
@@ -24,34 +26,107 @@
       <form class="row g-4" method="POST" action="/items/<%= itemType %>" enctype="multipart/form-data">
         <div class="col-md-6">
           <label for="title" class="form-label">Item title</label>
-          <input id="title" name="title" type="text" class="form-control" value="<%= itemFeedback?.values?.title || values.title %>" placeholder="Black leather wallet" required />
+          <input id="title" name="title" type="text" class="form-control" value="<%= formValues.title %>" placeholder="Black leather wallet" required />
         </div>
         <div class="col-md-6">
           <label for="category" class="form-label">Category</label>
           <select id="category" name="category" class="form-select form-control" required>
             <option value="">Choose a category</option>
             <% categories.forEach((category) => { %>
-              <option value="<%= category %>" <%= (itemFeedback?.values?.category || values.category) === category ? 'selected' : '' %>><%= category %></option>
+              <option value="<%= category %>" <%= formValues.category === category ? 'selected' : '' %>><%= category %></option>
             <% }) %>
           </select>
         </div>
         <div class="col-md-6">
           <label for="incidentDate" class="form-label"><%= itemType === 'lost' ? 'Date lost' : 'Date found' %></label>
-          <input id="incidentDate" name="incidentDate" type="date" class="form-control" value="<%= itemFeedback?.values?.incidentDate || values.incidentDate %>" required />
+          <input id="incidentDate" name="incidentDate" type="date" class="form-control" value="<%= formValues.incidentDate %>" required />
         </div>
-        <div class="col-md-6">
-          <label for="location" class="form-label"><%= itemType === 'lost' ? 'Last seen location' : 'Found location' %></label>
-          <input id="location" name="location" type="text" class="form-control" value="<%= itemFeedback?.values?.location || values.location %>" placeholder="Library, downtown station, campus..." required />
-        </div>
+
+        <% if (itemType === 'lost') { %>
+          <div class="col-md-6">
+            <label for="lastSeenLocation" class="form-label">Last seen on campus</label>
+            <input id="lastSeenLocation" name="lastSeenLocation" type="text" class="form-control" value="<%= formValues.lastSeenLocation %>" placeholder="Library entrance, A building hallway..." required />
+            <input type="hidden" name="location" value="<%= formValues.lastSeenLocation || formValues.location %>" />
+          </div>
+          <div class="col-12">
+            <label for="lastSeenNotes" class="form-label">Last seen notes (optional)</label>
+            <textarea id="lastSeenNotes" name="lastSeenNotes" class="form-control post-item-textarea-sm" rows="3" placeholder="Anything helpful about where or when you last saw it."><%= formValues.lastSeenNotes %></textarea>
+          </div>
+        <% } else { %>
+          <div class="col-md-6">
+            <label for="foundLocation" class="form-label">Where was it found on Langara campus?</label>
+            <select id="foundLocation" name="foundLocation" class="form-select campus-select" data-other-target="foundLocationOther" required>
+              <option value="">Choose a location</option>
+              <% campusLocations.forEach((location) => { %>
+                <option value="<%= location.value %>" <%= formValues.foundLocation === location.value ? 'selected' : '' %>><%= location.label %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-6 <%= formValues.foundLocation === 'other' ? '' : 'd-none' %>" data-other-wrapper="foundLocationOther">
+            <label for="foundLocationOther" class="form-label">Describe the found location</label>
+            <input id="foundLocationOther" name="foundLocationOther" type="text" class="form-control" value="<%= formValues.foundLocationOther %>" placeholder="Near the library printers" />
+          </div>
+          <div class="col-12">
+            <label for="foundLocationNotes" class="form-label">Found location notes (optional)</label>
+            <textarea id="foundLocationNotes" name="foundLocationNotes" class="form-control post-item-textarea-sm" rows="3" placeholder="Helpful details, nearby landmarks, time found, etc."><%= formValues.foundLocationNotes %></textarea>
+            <input type="hidden" name="location" value="<%= formValues.location %>" />
+          </div>
+          <div class="col-md-6">
+            <label for="pickupLocation" class="form-label">Pickup / verification point on campus</label>
+            <select id="pickupLocation" name="pickupLocation" class="form-select campus-select" data-other-target="pickupLocationOther" required>
+              <option value="">Choose a pickup location</option>
+              <% campusLocations.forEach((location) => { %>
+                <option value="<%= location.value %>" <%= formValues.pickupLocation === location.value ? 'selected' : '' %>><%= location.label %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-6 <%= formValues.pickupLocation === 'other' ? '' : 'd-none' %>" data-other-wrapper="pickupLocationOther">
+            <label for="pickupLocationOther" class="form-label">Describe the pickup location</label>
+            <input id="pickupLocationOther" name="pickupLocationOther" type="text" class="form-control" value="<%= formValues.pickupLocationOther %>" placeholder="Security desk in B building" />
+          </div>
+          <div class="col-12">
+            <label for="pickupInstructions" class="form-label">Pickup instructions</label>
+            <textarea id="pickupInstructions" name="pickupInstructions" class="form-control post-item-textarea-sm" rows="3" placeholder="Tell the owner how to verify the item and where to meet you."><%= formValues.pickupInstructions %></textarea>
+          </div>
+        <% } %>
+
         <div class="col-12">
           <label for="image" class="form-label">Item photo (optional)</label>
           <input id="image" name="image" type="file" class="form-control" accept="image/png,image/jpeg,image/webp" />
-          <div class="form-text">Accepted formats: JPG, PNG, WebP. Maximum size: 350 KB.</div>
+          <div class="form-text">Accepted formats: JPG, PNG, WebP. Maximum size: 3 MB.</div>
         </div>
         <div class="col-12">
           <label for="description" class="form-label">Description</label>
-          <textarea id="description" name="description" class="form-control post-item-textarea" rows="6" placeholder="Describe the item, colors, identifying marks, and anything else useful." required><%= itemFeedback?.values?.description || values.description %></textarea>
+          <textarea id="description" name="description" class="form-control post-item-textarea" rows="6" placeholder="Describe the item, colors, identifying marks, and anything else useful." required><%= formValues.description %></textarea>
         </div>
+
+        <div class="col-12">
+          <div class="card border rounded-4 bg-light-subtle">
+            <div class="card-body p-4">
+              <p class="text-uppercase small fw-semibold text-primary mb-1">Contact and claim details</p>
+              <h2 class="h5 fw-bold mb-3">How should the owner reach you?</h2>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="contactMethod" class="form-label">Preferred contact method</label>
+                  <select id="contactMethod" name="contactMethod" class="form-select">
+                    <% contactMethods.forEach((method) => { %>
+                      <option value="<%= method %>" <%= formValues.contactMethod === method ? 'selected' : '' %>><%= method.charAt(0).toUpperCase() + method.slice(1) %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="col-md-4" data-contact-field="email">
+                  <label for="contactEmail" class="form-label">Contact email</label>
+                  <input id="contactEmail" name="contactEmail" type="email" class="form-control" value="<%= formValues.contactEmail %>" placeholder="your.name@example.com" />
+                </div>
+                <div class="col-md-4" data-contact-field="phone">
+                  <label for="contactPhone" class="form-label">Contact phone</label>
+                  <input id="contactPhone" name="contactPhone" type="text" class="form-control" value="<%= formValues.contactPhone %>" placeholder="604-555-0199" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="col-12 d-flex justify-content-end gap-2">
           <a href="/items/mine" class="btn btn-outline-secondary">Cancel</a>
           <button type="submit" class="btn btn-primary"><%= submitLabel %></button>
