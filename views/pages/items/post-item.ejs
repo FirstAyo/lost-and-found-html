@@ -1,4 +1,6 @@
 <section class="container">
+  <% const mapsApiKey = typeof googleMapsApiKey !== 'undefined' ? googleMapsApiKey : ''; %>
+
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
       <p class="text-uppercase small fw-semibold text-primary mb-1"><%= itemType === 'lost' ? 'Lost item' : 'Found item' %></p>
@@ -21,7 +23,11 @@
     </div>
   <% } %>
 
-  <div class="card border-0 shadow-sm rounded-4">
+  <div
+    class="card border-0 shadow-sm rounded-4"
+    id="post-item-page"
+    data-google-maps-api-key="<%= mapsApiKey %>"
+  >
     <div class="card-body p-4 p-lg-5">
       <form class="row g-4" method="POST" action="/items/<%= itemType %>" enctype="multipart/form-data">
         <div class="col-md-6">
@@ -74,7 +80,7 @@
           <div class="col-12">
             <div id="foundLocationPreview" class="campus-api-preview d-none">
               <div class="campus-api-preview__status text-muted small mb-2" data-preview-status="found"></div>
-              <div class="alert alert-info mb-0">
+              <div class="alert alert-info mb-3">
                 <p class="text-uppercase small fw-semibold text-primary mb-1">Map API preview</p>
                 <h3 class="h6 fw-bold mb-2">Resolved campus location</h3>
                 <p class="mb-2" data-preview-label="found"></p>
@@ -83,6 +89,28 @@
                   View on map
                 </a>
               </div>
+
+              <div class="campus-map-frame-wrapper d-none" data-preview-iframe-wrapper="found">
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden border">
+                  <iframe
+                    title="Found location Google map preview"
+                    data-preview-iframe="found"
+                    width="100%"
+                    height="100%"
+                    style="border:0;"
+                    loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="">
+                  </iframe>
+                </div>
+              </div>
+
+              <% if (!mapsApiKey) { %>
+                <p class="small text-danger mt-2 mb-0">
+                  Google Maps iframe preview is unavailable because GOOGLE_MAPS_API_KEY is missing.
+                </p>
+              <% } %>
             </div>
           </div>
 
@@ -110,7 +138,7 @@
           <div class="col-12">
             <div id="pickupLocationPreview" class="campus-api-preview d-none">
               <div class="campus-api-preview__status text-muted small mb-2" data-preview-status="pickup"></div>
-              <div class="alert alert-secondary mb-0">
+              <div class="alert alert-secondary mb-3">
                 <p class="text-uppercase small fw-semibold text-primary mb-1">Pickup point preview</p>
                 <h3 class="h6 fw-bold mb-2">Resolved pickup location</h3>
                 <p class="mb-2" data-preview-label="pickup"></p>
@@ -119,6 +147,28 @@
                   View on map
                 </a>
               </div>
+
+              <div class="campus-map-frame-wrapper d-none" data-preview-iframe-wrapper="pickup">
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden border">
+                  <iframe
+                    title="Pickup location Google map preview"
+                    data-preview-iframe="pickup"
+                    width="100%"
+                    height="100%"
+                    style="border:0;"
+                    loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="">
+                  </iframe>
+                </div>
+              </div>
+
+              <% if (!mapsApiKey) { %>
+                <p class="small text-danger mt-2 mb-0">
+                  Google Maps iframe preview is unavailable because GOOGLE_MAPS_API_KEY is missing.
+                </p>
+              <% } %>
             </div>
           </div>
 

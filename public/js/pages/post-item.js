@@ -1,6 +1,8 @@
 const titleField = document.getElementById("title");
 const campusSelects = document.querySelectorAll(".campus-select");
 const contactMethodField = document.getElementById("contactMethod");
+const postItemPage = document.getElementById("post-item-page");
+const googleMapsApiKey = postItemPage?.dataset.googleMapsApiKey || "";
 
 function toggleOtherField(selectElement) {
   const targetName = selectElement.dataset.otherTarget;
@@ -47,6 +49,31 @@ function toggleContactFields() {
   }
 }
 
+function updateGoogleIframe(previewType, labelText) {
+  const iframeWrapper = document.querySelector(
+    `[data-preview-iframe-wrapper="${previewType}"]`,
+  );
+  const iframe = document.querySelector(
+    `[data-preview-iframe="${previewType}"]`,
+  );
+
+  if (!iframeWrapper || !iframe) {
+    return;
+  }
+
+  if (!googleMapsApiKey || !labelText) {
+    iframeWrapper.classList.add("d-none");
+    iframe.src = "";
+    return;
+  }
+
+  const query = encodeURIComponent(labelText || "Langara College Vancouver");
+  iframe.src = `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(
+    googleMapsApiKey,
+  )}&q=${query}`;
+  iframeWrapper.classList.remove("d-none");
+}
+
 async function updateCampusPreview(previewType) {
   const selectElement = document.querySelector(
     `[data-preview-type="${previewType}"]`,
@@ -90,6 +117,7 @@ async function updateCampusPreview(previewType) {
     coordsElement.textContent = "";
     linkElement.classList.add("d-none");
     linkElement.href = "#";
+    updateGoogleIframe(previewType, "");
     return;
   }
 
@@ -101,15 +129,18 @@ async function updateCampusPreview(previewType) {
     coordsElement.textContent = "";
     linkElement.classList.add("d-none");
     linkElement.href = "#";
+    updateGoogleIframe(previewType, "");
     return;
   }
 
   previewWrapper.classList.remove("d-none");
-  statusElement.textContent = "Looking up campus location via Map API...";
+  statusElement.textContent =
+    "🔍 Verifying location using external map service (Google Maps / OpenStreetMap)...";
   labelElement.textContent = "";
   coordsElement.textContent = "";
   linkElement.classList.add("d-none");
   linkElement.href = "#";
+  updateGoogleIframe(previewType, "");
 
   try {
     const params = new URLSearchParams({
@@ -135,10 +166,11 @@ async function updateCampusPreview(previewType) {
         "Exact building coordinates were not found, so this selection was mapped to Langara College Main Campus.";
     } else {
       statusElement.textContent =
-        "Location verified successfully through the external map service.";
+        "✅ Location verified via map API. A map preview is shown below.";
     }
 
-    labelElement.textContent = data.label || "Campus location selected";
+    const resolvedLabel = data.label || "Campus location selected";
+    labelElement.textContent = resolvedLabel;
 
     if (data.lat && data.lon) {
       coordsElement.textContent = `Latitude: ${data.lat} | Longitude: ${data.lon}`;
@@ -153,6 +185,8 @@ async function updateCampusPreview(previewType) {
     } else {
       linkElement.classList.add("d-none");
     }
+
+    updateGoogleIframe(previewType, resolvedLabel);
   } catch {
     statusElement.textContent =
       "Map API lookup failed. You can still submit the item.";
@@ -160,6 +194,7 @@ async function updateCampusPreview(previewType) {
     coordsElement.textContent = "";
     linkElement.classList.add("d-none");
     linkElement.href = "#";
+    updateGoogleIframe(previewType, "");
   }
 }
 

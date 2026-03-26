@@ -1,5 +1,6 @@
 <section class="container item-details-page">
   <div class="mx-auto item-details-shell">
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
       <div class="ratio ratio-16x9 item-details-media">
         <% if (item.imagePath) { %>
@@ -33,7 +34,7 @@
 
                   <% if (item.foundLocationPreview?.usedCampusFallback) { %>
                     <p class="small text-secondary mb-3">
-                      Exact building coordinates were not found, so this map opens the Langara College main campus.
+                      Exact building coordinates were not found, so this map uses the Langara College main campus as a fallback.
                     </p>
                   <% } %>
 
@@ -41,10 +42,30 @@
                     href="<%= item.foundLocationPreview.mapLink %>"
                     target="_blank"
                     rel="noreferrer"
-                    class="btn btn-outline-primary w-100"
+                    class="btn btn-outline-primary w-100 mb-3"
                   >
                     Open found location in map
                   </a>
+
+                  <% if (mapsApiKey) { %>
+                    <div class="ratio ratio-4x3 rounded-4 overflow-hidden border">
+                      <iframe
+                        title="Found location map"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(item.foundLocationPreview.label || item.foundLocationLabel || item.location || 'Langara College Vancouver') %>">
+                      </iframe>
+                    </div>
+                  <% } else { %>
+                    <!-- Missing GOOGLE_MAPS_API_KEY in .env -->
+                    <p class="small text-danger mb-0">
+                      Embedded Google Map unavailable because GOOGLE_MAPS_API_KEY is missing.
+                    </p>
+                  <% } %>
                 </div>
               </div>
             <% } %>
@@ -59,7 +80,7 @@
 
                   <% if (item.pickupLocationPreview?.usedCampusFallback) { %>
                     <p class="small text-secondary mb-3">
-                      Exact building coordinates were not found, so this map opens the Langara College main campus.
+                      Exact building coordinates were not found, so this map uses the Langara College main campus as a fallback.
                     </p>
                   <% } %>
 
@@ -67,10 +88,30 @@
                     href="<%= item.pickupLocationPreview.mapLink %>"
                     target="_blank"
                     rel="noreferrer"
-                    class="btn btn-outline-secondary w-100"
+                    class="btn btn-outline-secondary w-100 mb-3"
                   >
                     Open pickup point in map
                   </a>
+
+                  <% if (mapsApiKey) { %>
+                    <div class="ratio ratio-4x3 rounded-4 overflow-hidden border">
+                      <iframe
+                        title="Pickup location map"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps/embed/v1/place?key=<%= mapsApiKey %>&q=<%= encodeURIComponent(item.pickupLocationPreview.label || item.pickupLocationLabel || 'Langara College Vancouver') %>">
+                      </iframe>
+                    </div>
+                  <% } else { %>
+                    <!-- Missing GOOGLE_MAPS_API_KEY in .env -->
+                    <p class="small text-danger mb-0">
+                      Embedded Google Map unavailable because GOOGLE_MAPS_API_KEY is missing.
+                    </p>
+                  <% } %>
                 </div>
               </div>
             <% } %>

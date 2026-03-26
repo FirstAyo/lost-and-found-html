@@ -24,3 +24,7 @@
 .campus-api-preview [data-preview-coords] {
   color: #6c757d;
 }
+
+.campus-map-frame-wrapper {
+  margin-top: 0.75rem;
+}

@@ -264,6 +264,7 @@ export const itemController = {
       contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
       values: buildItemFormDefaults("lost", req.session.user),
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // <-- add this
     });
   },
 
@@ -283,6 +284,7 @@ export const itemController = {
       contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
       values: buildItemFormDefaults("found", req.session.user),
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // <-- add this
     });
   },
 
@@ -406,6 +408,8 @@ export const itemController = {
         pageCss: "pages/item-details.css",
         pageJs: "pages/item-details.js",
         item,
+        currentUser: req.user,
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       });
     } catch (error) {
       return next(error);
