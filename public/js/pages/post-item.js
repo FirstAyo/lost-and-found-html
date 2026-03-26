@@ -130,9 +130,13 @@ async function updateCampusPreview(previewType) {
       return;
     }
 
-    statusElement.textContent = data.success
-      ? "Location verified successfully through the external map service."
-      : "Using campus label only. Exact map coordinates were not found.";
+    if (data.usedCampusFallback) {
+      statusElement.textContent =
+        "Exact building coordinates were not found, so this selection was mapped to Langara College Main Campus.";
+    } else {
+      statusElement.textContent =
+        "Location verified successfully through the external map service.";
+    }
 
     labelElement.textContent = data.label || "Campus location selected";
 

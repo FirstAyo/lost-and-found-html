@@ -27,9 +27,16 @@
               <div class="col-md-6">
                 <div class="map-preview-block h-100">
                   <p class="small text-secondary mb-2">Found location</p>
-                  <p class="fw-semibold mb-3">
+                  <p class="fw-semibold mb-2">
                     <%= item.foundLocationPreview.label || item.foundLocationLabel || item.location %>
                   </p>
+
+                  <% if (item.foundLocationPreview?.usedCampusFallback) { %>
+                    <p class="small text-secondary mb-3">
+                      Exact building coordinates were not found, so this map opens the Langara College main campus.
+                    </p>
+                  <% } %>
+
                   <a
                     href="<%= item.foundLocationPreview.mapLink %>"
                     target="_blank"
@@ -46,9 +53,16 @@
               <div class="col-md-6">
                 <div class="map-preview-block h-100">
                   <p class="small text-secondary mb-2">Pickup point</p>
-                  <p class="fw-semibold mb-3">
+                  <p class="fw-semibold mb-2">
                     <%= item.pickupLocationPreview.label || item.pickupLocationLabel %>
                   </p>
+
+                  <% if (item.pickupLocationPreview?.usedCampusFallback) { %>
+                    <p class="small text-secondary mb-3">
+                      Exact building coordinates were not found, so this map opens the Langara College main campus.
+                    </p>
+                  <% } %>
+
                   <a
                     href="<%= item.pickupLocationPreview.mapLink %>"
                     target="_blank"

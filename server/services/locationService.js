@@ -1,6 +1,7 @@
 import {
   buildCampusSearchQuery,
   buildCampusDisplayLabel,
+  LANGARA_CAMPUS_FALLBACK,
 } from "../config/campusLocations.js";
 
 // using OpenStreetMap API to get campus location
@@ -12,6 +13,24 @@ function toMapLink(lat, lon, label = "") {
 
   const query = encodeURIComponent(label || `${lat},${lon}`);
   return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}&query=${query}`;
+}
+
+function buildCampusFallbackLocation(label = "") {
+  const fallbackLabel = label
+    ? `${label} (mapped to Langara College Main Campus)`
+    : LANGARA_CAMPUS_FALLBACK.label;
+
+  return {
+    label: fallbackLabel,
+    lat: LANGARA_CAMPUS_FALLBACK.lat,
+    lon: LANGARA_CAMPUS_FALLBACK.lon,
+    mapLink: toMapLink(
+      LANGARA_CAMPUS_FALLBACK.lat,
+      LANGARA_CAMPUS_FALLBACK.lon,
+      fallbackLabel,
+    ),
+    usedCampusFallback: true,
+  };
 }
 
 async function geocodeQuery(query) {
@@ -57,6 +76,7 @@ async function geocodeQuery(query) {
     lat,
     lon,
     mapLink: toMapLink(lat, lon, result.display_name || query),
+    usedCampusFallback: false,
   };
 }
 
@@ -74,18 +94,22 @@ export const locationService = {
           lat: geocoded.lat,
           lon: geocoded.lon,
           mapLink: geocoded.mapLink,
+          usedCampusFallback: false,
         };
       }
     } catch {
       // Graceful fallback: keep app working even if geocoding fails.
     }
 
+    const fallback = buildCampusFallbackLocation(label);
+
     return {
-      label,
+      label: fallback.label,
       searchQuery,
-      lat: null,
-      lon: null,
-      mapLink: "",
+      lat: fallback.lat,
+      lon: fallback.lon,
+      mapLink: fallback.mapLink,
+      usedCampusFallback: true,
     };
   },
 
@@ -103,19 +127,23 @@ export const locationService = {
           lat: geocoded.lat,
           lon: geocoded.lon,
           mapLink: geocoded.mapLink,
+          usedCampusFallback: false,
         };
       }
     } catch {
       // Graceful fallback
     }
 
+    const fallback = buildCampusFallbackLocation(label);
+
     return {
-      success: false,
-      label,
+      success: true,
+      label: fallback.label,
       searchQuery,
-      lat: null,
-      lon: null,
-      mapLink: "",
+      lat: fallback.lat,
+      lon: fallback.lon,
+      mapLink: fallback.mapLink,
+      usedCampusFallback: true,
     };
   },
 };
@@ -125,7 +153,14 @@ export async function geocodeLocation(query) {
     const geocoded = await geocodeQuery(query);
 
     if (!geocoded) {
-      return null;
+      const fallback = buildCampusFallbackLocation("Selected campus location");
+      return {
+        lat: fallback.lat,
+        lon: fallback.lon,
+        displayName: fallback.label,
+        mapLink: fallback.mapLink,
+        usedCampusFallback: true,
+      };
     }
 
     return {
@@ -133,9 +168,18 @@ export async function geocodeLocation(query) {
       lon: geocoded.lon,
       displayName: geocoded.label,
       mapLink: geocoded.mapLink,
+      usedCampusFallback: false,
     };
   } catch (err) {
     console.error("Geocoding error:", err);
-    return null;
+
+    const fallback = buildCampusFallbackLocation("Selected campus location");
+    return {
+      lat: fallback.lat,
+      lon: fallback.lon,
+      displayName: fallback.label,
+      mapLink: fallback.mapLink,
+      usedCampusFallback: true,
+    };
   }
 }

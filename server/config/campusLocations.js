@@ -1,17 +1,79 @@
+const LANGARA_CAMPUS_ADDRESS =
+  "Langara College, 100 W 49th Ave, Vancouver, BC, Canada";
+
+export const LANGARA_CAMPUS_FALLBACK = {
+  label: "Langara College Main Campus",
+  lat: 49.2249,
+  lon: -123.1086,
+  address: LANGARA_CAMPUS_ADDRESS,
+};
+
 export const CAMPUS_LOCATIONS = [
-  { value: 'library', label: 'Library', searchQuery: 'Langara College Library Vancouver BC' },
-  { value: 'a-building', label: 'A Building', searchQuery: 'Langara College A Building Vancouver BC' },
-  { value: 'b-building', label: 'B Building', searchQuery: 'Langara College B Building Vancouver BC' },
-  { value: 'c-building', label: 'C Building', searchQuery: 'Langara College C Building Vancouver BC' },
-  { value: 'student-services', label: 'Student Services', searchQuery: 'Langara College Student Services Vancouver BC' },
-  { value: 'cafeteria', label: 'Cafeteria', searchQuery: 'Langara College Cafeteria Vancouver BC' },
-  { value: 'student-union', label: 'Student Union', searchQuery: 'Langara College Student Union Vancouver BC' },
-  { value: 'gym', label: 'Gym / Recreation Area', searchQuery: 'Langara College Gym Vancouver BC' },
-  { value: 'main-entrance', label: 'Main Entrance', searchQuery: 'Langara College Main Entrance Vancouver BC' },
-  { value: 'parking-lot', label: 'Parking Lot', searchQuery: 'Langara College Parking Lot Vancouver BC' },
-  { value: 'bus-loop', label: 'Bus Stop / Bus Loop', searchQuery: 'Langara College Bus Loop Vancouver BC' },
-  { value: 'security-office', label: 'Security Office', searchQuery: 'Langara College Security Vancouver BC' },
-  { value: 'other', label: 'Other campus location', searchQuery: 'Langara College Vancouver BC' }
+  {
+    value: "library",
+    label: "Library",
+    searchQuery: `Library, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "a-building",
+    label: "A Building",
+    searchQuery: `A Building, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "b-building",
+    label: "B Building",
+    searchQuery: `B Building, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "c-building",
+    label: "C Building",
+    searchQuery: `C Building, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "student-services",
+    label: "Student Services",
+    searchQuery: `Student Services, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "cafeteria",
+    label: "Cafeteria",
+    searchQuery: `Cafeteria, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "student-union",
+    label: "Student Union",
+    searchQuery: `Student Union, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "gym",
+    label: "Gym / Recreation Area",
+    searchQuery: `Gym, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "main-entrance",
+    label: "Main Entrance",
+    searchQuery: `Main Entrance, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "parking-lot",
+    label: "Parking Lot",
+    searchQuery: `Parking Lot, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "bus-loop",
+    label: "Bus Stop / Bus Loop",
+    searchQuery: `Bus Loop, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "security-office",
+    label: "Security Office",
+    searchQuery: `Security Office, ${LANGARA_CAMPUS_ADDRESS}`,
+  },
+  {
+    value: "other",
+    label: "Other campus location",
+    searchQuery: LANGARA_CAMPUS_ADDRESS,
+  },
 ];
 
 export function getCampusLocationOptions() {
@@ -22,22 +84,23 @@ export function findCampusLocation(value) {
   return CAMPUS_LOCATIONS.find((location) => location.value === value) || null;
 }
 
-export function buildCampusSearchQuery(locationValue, otherText = '') {
+export function buildCampusSearchQuery(locationValue, otherText = "") {
   const preset = findCampusLocation(locationValue);
+  const trimmedOtherText = otherText.trim();
 
-  if (locationValue === 'other' && otherText.trim()) {
-    return `Langara College ${otherText.trim()} Vancouver BC`;
+  if (locationValue === "other" && trimmedOtherText) {
+    return `${trimmedOtherText}, ${LANGARA_CAMPUS_ADDRESS}`;
   }
 
-  return preset?.searchQuery || 'Langara College Vancouver BC';
+  return preset?.searchQuery || LANGARA_CAMPUS_ADDRESS;
 }
 
-export function buildCampusDisplayLabel(locationValue, otherText = '') {
+export function buildCampusDisplayLabel(locationValue, otherText = "") {
   const preset = findCampusLocation(locationValue);
 
-  if (locationValue === 'other' && otherText.trim()) {
+  if (locationValue === "other" && otherText.trim()) {
     return otherText.trim();
   }
 
-  return preset?.label || '';
+  return preset?.label || "";
 }
