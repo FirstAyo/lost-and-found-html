@@ -29,7 +29,7 @@
     data-google-maps-api-key="<%= mapsApiKey %>"
   >
     <div class="card-body p-4 p-lg-5">
-      <form class="row g-4" method="POST" action="/items/<%= itemType %>" enctype="multipart/form-data">
+      <form class="row g-4" method="POST" action="<%= formAction || `/items/${itemType}` %>" enctype="multipart/form-data">
         <div class="col-md-6">
           <label for="title" class="form-label">Item title</label>
           <input id="title" name="title" type="text" class="form-control" value="<%= formValues.title %>" placeholder="Black leather wallet" required />

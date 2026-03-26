@@ -223,6 +223,29 @@ async function buildLocationPayload(payload) {
   };
 }
 
+function mapItemToFormValues(item) {
+  return {
+    title: item.title || "",
+    type: item.type || "lost",
+    category: item.category || "",
+    description: item.description || "",
+    location: item.location || "",
+    incidentDate: item.incidentDate || "",
+    lastSeenLocation: item.lastSeenLocation || "",
+    lastSeenNotes: item.lastSeenNotes || "",
+    foundLocation: item.foundLocation || "",
+    foundLocationOther: item.foundLocationOther || "",
+    foundLocationNotes: item.foundLocationNotes || "",
+    pickupLocation: item.pickupLocation || "",
+    pickupLocationOther: item.pickupLocationOther || "",
+    pickupInstructions: item.pickupInstructions || "",
+    contactMethod: item.contactMethod || "email",
+    contactEmail: item.contactEmail || "",
+    contactPhone: item.contactPhone || "",
+    imagePath: item.imagePath || "",
+  };
+}
+
 export const itemController = {
   async renderBrowse(req, res, next) {
     try {
@@ -264,7 +287,9 @@ export const itemController = {
       contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
       values: buildItemFormDefaults("lost", req.session.user),
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // <-- add this
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      isEdit: false,
+      formAction: "/items/lost",
     });
   },
 
@@ -284,8 +309,54 @@ export const itemController = {
       contactMethods: CONTACT_METHODS,
       itemFeedback: consumeItemFeedback(req.session),
       values: buildItemFormDefaults("found", req.session.user),
-      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY, // <-- add this
+      googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+      isEdit: false,
+      formAction: "/items/found",
     });
+  },
+
+  async renderEditItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.redirect("/items/mine");
+      }
+
+      const item = await itemService.getItemById(id);
+
+      if (!item) {
+        return res.redirect("/items/mine");
+      }
+
+      if (String(item.ownerId) !== String(req.session.user.id)) {
+        return res.redirect("/items/mine");
+      }
+
+      return res.render("pages/items/post-item", {
+        title: "Edit Item",
+        layout: "layouts/dashboard",
+        pageCss: "pages/post-item.css",
+        pageJs: "pages/post-item.js",
+        formTitle: `Edit ${item.type} item`,
+        formSubtitle:
+          item.type === "lost"
+            ? "Update where the item was last seen and your contact details."
+            : "Update the found location, pickup point, and contact details.",
+        submitLabel: "Save Changes",
+        itemType: item.type,
+        categories: CATEGORIES,
+        campusLocations: CAMPUS_LOCATION_OPTIONS,
+        contactMethods: CONTACT_METHODS,
+        itemFeedback: consumeItemFeedback(req.session),
+        values: mapItemToFormValues(item),
+        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
+        isEdit: true,
+        formAction: `/items/edit/${item.id}`,
+      });
+    } catch (error) {
+      return next(error);
+    }
   },
 
   async createItem(req, res, next) {
@@ -356,6 +427,196 @@ export const itemController = {
     }
   },
 
+  async updateItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        await deleteUploadedFile(req.file);
+        return res.redirect("/items/mine");
+      }
+
+      const existingItem = await itemService.getItemById(id);
+
+      if (!existingItem) {
+        await deleteUploadedFile(req.file);
+        return res.redirect("/items/mine");
+      }
+
+      if (String(existingItem.ownerId) !== String(req.session.user.id)) {
+        await deleteUploadedFile(req.file);
+        return res.redirect("/items/mine");
+      }
+
+      const payload = normalizeItemPayload(
+        req.body,
+        existingItem.type,
+        req.session.user,
+      );
+      const errors = validateItemPayload(payload);
+
+      if (req.fileValidationError) {
+        errors.push(req.fileValidationError);
+      }
+
+      if (errors.length > 0) {
+        await deleteUploadedFile(req.file);
+        setItemFeedback(req, {
+          type: "danger",
+          title: "Unable to update item",
+          messages: errors,
+          values: {
+            ...payload,
+            imagePath: existingItem.imagePath,
+          },
+        });
+        return res.redirect(`/items/edit/${id}`);
+      }
+
+      const locationPayload = await buildLocationPayload(payload);
+
+      const updatePayload = {
+        title: payload.title,
+        category: payload.category,
+        description: payload.description,
+        incidentDate: new Date(payload.incidentDate),
+        ...locationPayload,
+      };
+
+      if (req.file) {
+        updatePayload.imagePath = `/uploads/${req.file.filename}`;
+
+        if (existingItem.imagePath) {
+          const oldPath = `.${existingItem.imagePath}`;
+          try {
+            await fs.unlink(oldPath);
+          } catch {
+            // Ignore image cleanup errors.
+          }
+        }
+      }
+
+      await itemService.updateItem(id, updatePayload);
+
+      await logAction(req, {
+        action: "item_update",
+        outcome: "success",
+        statusCode: 302,
+        metadata: {
+          itemId: id,
+          itemType: existingItem.type,
+          title: payload.title,
+        },
+      });
+
+      setItemFeedback(req, {
+        type: "success",
+        title: "Item updated",
+        messages: ["Your listing has been updated successfully."],
+      });
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      await deleteUploadedFile(req.file);
+      return next(error);
+    }
+  },
+
+  async markAsResolved(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.redirect("/items/mine");
+      }
+
+      const item = await itemService.getItemById(id);
+
+      if (!item) {
+        return res.redirect("/items/mine");
+      }
+
+      if (String(item.ownerId) !== String(req.session.user.id)) {
+        return res.redirect("/items/mine");
+      }
+
+      await itemService.updateItem(id, { status: "resolved" });
+
+      await logAction(req, {
+        action: "item_resolve",
+        outcome: "success",
+        statusCode: 302,
+        metadata: {
+          itemId: id,
+          itemType: item.type,
+          title: item.title,
+        },
+      });
+
+      setItemFeedback(req, {
+        type: "success",
+        title: "Item resolved",
+        messages: ["The listing has been marked as resolved."],
+      });
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      return next(error);
+    }
+  },
+
+  async deleteItem(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      if (!mongoose.isValidObjectId(id)) {
+        return res.redirect("/items/mine");
+      }
+
+      const item = await itemService.getItemById(id);
+
+      if (!item) {
+        return res.redirect("/items/mine");
+      }
+
+      if (String(item.ownerId) !== String(req.session.user.id)) {
+        return res.redirect("/items/mine");
+      }
+
+      if (item.imagePath) {
+        const imagePath = `.${item.imagePath}`;
+        try {
+          await fs.unlink(imagePath);
+        } catch {
+          // Ignore image cleanup errors.
+        }
+      }
+
+      await itemService.deleteItem(id);
+
+      await logAction(req, {
+        action: "item_delete",
+        outcome: "success",
+        statusCode: 302,
+        metadata: {
+          itemId: id,
+          itemType: item.type,
+          title: item.title,
+        },
+      });
+
+      setItemFeedback(req, {
+        type: "success",
+        title: "Item deleted",
+        messages: ["The listing has been deleted successfully."],
+      });
+
+      return res.redirect("/items/mine");
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   handleUploadError(error, req, res, next) {
     if (!error) {
       return next();
@@ -377,104 +638,6 @@ export const itemController = {
         items,
         itemFeedback: consumeItemFeedback(req.session),
       });
-    } catch (error) {
-      return next(error);
-    }
-  },
-
-  async renderEditItem(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      const item = await itemService.getItemById(id);
-
-      if (!item) {
-        return res.redirect("/items/mine");
-      }
-
-      // Optional: ensure only owner can edit
-      if (item.ownerId.toString() !== req.session.user.id) {
-        return res.redirect("/items/mine");
-      }
-
-      return res.render("pages/items/post-item", {
-        title: "Edit Item",
-        layout: "layouts/dashboard",
-        pageCss: "pages/post-item.css",
-        pageJs: "pages/post-item.js",
-        formTitle: "Edit your item",
-        submitLabel: "Update Item",
-        itemType: item.type,
-        categories: CATEGORIES,
-        campusLocations: CAMPUS_LOCATION_OPTIONS,
-        contactMethods: CONTACT_METHODS,
-        values: item,
-        isEdit: true,
-        googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
-      });
-    } catch (error) {
-      return next(error);
-    }
-  },
-
-  async updateItem(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      const item = await itemService.getItemById(id);
-      if (!item) return res.redirect("/items/mine");
-
-      const payload = normalizeItemPayload(
-        req.body,
-        item.type,
-        req.session.user,
-      );
-
-      const errors = validateItemPayload(payload);
-
-      if (errors.length > 0) {
-        setItemFeedback(req, {
-          type: "danger",
-          title: "Update failed",
-          messages: errors,
-        });
-        return res.redirect(`/items/edit/${id}`);
-      }
-
-      const locationPayload = await buildLocationPayload(payload);
-
-      await itemService.updateItem(id, {
-        ...payload,
-        ...locationPayload,
-        incidentDate: new Date(payload.incidentDate),
-        ...(req.file && { imagePath: `/uploads/${req.file.filename}` }),
-      });
-
-      return res.redirect("/items/mine");
-    } catch (error) {
-      return next(error);
-    }
-  },
-
-  async markAsResolved(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      await itemService.updateItem(id, { status: "resolved" });
-
-      return res.redirect("/items/mine");
-    } catch (error) {
-      return next(error);
-    }
-  },
-
-  async deleteItem(req, res, next) {
-    try {
-      const { id } = req.params;
-
-      await itemService.deleteItem(id);
-
-      return res.redirect("/items/mine");
     } catch (error) {
       return next(error);
     }
@@ -506,7 +669,7 @@ export const itemController = {
         pageCss: "pages/item-details.css",
         pageJs: "pages/item-details.js",
         item,
-        currentUser: req.user,
+        currentUser: req.session.user || null,
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       });
     } catch (error) {
