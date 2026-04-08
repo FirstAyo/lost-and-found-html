@@ -2,3 +2,21 @@
   display: grid;
   gap: 0.75rem;
 }
+
+.how-it-works-section .carousel-inner {
+  border-radius: 1.25rem;
+}
+
+.how-it-works-section .carousel-item {
+  min-height: 360px;
+}
+
+.how-it-works-section .carousel-control-prev,
+.how-it-works-section .carousel-control-next {
+  width: 5%;
+}
+
+.how-it-works-section .badge {
+  font-size: 0.85rem;
+  padding: 0.55rem 0.85rem;
+}

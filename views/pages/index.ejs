@@ -31,6 +31,141 @@
   </div>
 </section>
 
+<!-- Boostrap carousel component adapted to show the 4 steps of how the system works, with custom content and styling for each step. -->
+
+<section class="how-it-works-section py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-4">
+      <p class="text-uppercase fw-semibold text-primary mb-2">How It Works</p>
+      <h2 class="fw-bold">Using Langara Lost & Found is simple</h2>
+      <p class="text-secondary mb-0">
+        Whether you lost something or found something on campus, the platform helps connect the right person to the item quickly.
+      </p>
+    </div>
+
+    <div id="howItWorksCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#howItWorksCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Step 1"></button>
+        <button type="button" data-bs-target="#howItWorksCarousel" data-bs-slide-to="1" aria-label="Step 2"></button>
+        <button type="button" data-bs-target="#howItWorksCarousel" data-bs-slide-to="2" aria-label="Step 3"></button>
+        <button type="button" data-bs-target="#howItWorksCarousel" data-bs-slide-to="3" aria-label="Step 4"></button>
+      </div>
+
+      <div class="carousel-inner rounded-4 shadow-sm bg-white overflow-hidden">
+        <div class="carousel-item active" data-bs-interval="5000">
+          <div class="row align-items-center g-0">
+            <div class="col-lg-6">
+              <div class="p-5">
+                <span class="badge bg-primary-subtle text-primary mb-3">Step 1</span>
+                <h3 class="fw-bold mb-3">Report a lost or found item</h3>
+                <p class="text-secondary mb-4">
+                  Users can quickly create a listing for an item they lost or found on the Langara campus. They can upload a photo, choose a category, and enter important details.
+                </p>
+                <ul class="text-secondary ps-3 mb-0">
+                  <li>Choose lost or found</li>
+                  <li>Add item details</li>
+                  <li>Upload a photo</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-6 bg-primary text-white">
+              <div class="p-5 text-center">
+                <h4 class="fw-bold">Create a Listing</h4>
+                <p class="mb-0">Start by telling the system what happened to the item.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="5000">
+          <div class="row align-items-center g-0">
+            <div class="col-lg-6">
+              <div class="p-5">
+                <span class="badge bg-primary-subtle text-primary mb-3">Step 2</span>
+                <h3 class="fw-bold mb-3">Add campus location and pickup details</h3>
+                <p class="text-secondary mb-4">
+                  For found items, users can specify where on the Langara campus the item was found and where the owner can come to verify and pick it up.
+                </p>
+                <ul class="text-secondary ps-3 mb-0">
+                  <li>Select found location on campus</li>
+                  <li>Choose pickup point</li>
+                  <li>Add pickup instructions</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-6 bg-success text-white">
+              <div class="p-5 text-center">
+                <h4 class="fw-bold">Campus-Based Recovery</h4>
+                <p class="mb-0">The system is designed specifically for Langara College.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="5000">
+          <div class="row align-items-center g-0">
+            <div class="col-lg-6">
+              <div class="p-5">
+                <span class="badge bg-primary-subtle text-primary mb-3">Step 3</span>
+                <h3 class="fw-bold mb-3">Browse listings and verify locations</h3>
+                <p class="text-secondary mb-4">
+                  Guests and users can browse item listings, open full details, and view location support for found and pickup points to make recovery easier.
+                </p>
+                <ul class="text-secondary ps-3 mb-0">
+                  <li>Browse current listings</li>
+                  <li>View item details</li>
+                  <li>Check map/location information</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-6 bg-warning-subtle text-dark">
+              <div class="p-5 text-center">
+                <h4 class="fw-bold">Find the Right Listing</h4>
+                <p class="mb-0">Users can compare item details before making contact.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="5000">
+          <div class="row align-items-center g-0">
+            <div class="col-lg-6">
+              <div class="p-5">
+                <span class="badge bg-primary-subtle text-primary mb-3">Step 4</span>
+                <h3 class="fw-bold mb-3">Contact the poster and recover the item</h3>
+                <p class="text-secondary mb-4">
+                  Once the correct listing is found, the owner can contact the poster using the preferred contact method and arrange pickup and verification on campus.
+                </p>
+                <ul class="text-secondary ps-3 mb-0">
+                  <li>Use email or phone contact</li>
+                  <li>Verify ownership</li>
+                  <li>Collect the item safely</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-lg-6 bg-dark text-white">
+              <div class="p-5 text-center">
+                <h4 class="fw-bold">Reconnect People with Their Items</h4>
+                <p class="mb-0">The final goal is safe and organized item recovery.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#howItWorksCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+
+      <button class="carousel-control-next" type="button" data-bs-target="#howItWorksCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <section class="container mt-5">
   <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
     <div>

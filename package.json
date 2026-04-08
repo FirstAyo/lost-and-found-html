@@ -9,6 +9,7 @@
     "start": "node server/app.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.6.1",
     "ejs": "^3.1.10",
@@ -16,8 +17,8 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.2",
     "mongoose": "^8.19.1",
-    "bcryptjs": "^2.4.3",
-    "multer": "^1.4.5-lts.2"
+    "multer": "^1.4.5-lts.2",
+    "nodemailer": "^8.0.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

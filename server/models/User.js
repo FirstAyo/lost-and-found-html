@@ -1,5 +1,7 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+// server/models/User.js
+
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
@@ -8,53 +10,67 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 50
+      maxlength: 50,
     },
     lastName: {
       type: String,
       required: true,
       trim: true,
       minlength: 2,
-      maxlength: 50
+      maxlength: 50,
     },
     email: {
       type: String,
       required: true,
       unique: true,
       trim: true,
-      lowercase: true
+      lowercase: true,
     },
     password: {
       type: String,
       required: true,
-      minlength: 8
+      minlength: 8,
     },
     role: {
       type: String,
-      enum: ['member', 'admin'],
-      default: 'member'
+      enum: ["member", "admin"],
+      default: "member",
     },
     status: {
       type: String,
-      enum: ['active', 'suspended'],
-      default: 'active'
-    }
+      enum: ["active", "suspended"],
+      default: "active",
+    },
+
+    /**
+     * Password reset support
+     * ----------------------------------------
+     * resetPasswordToken: temporary token sent to user's email
+     * resetPasswordExpires: token expiry timestamp
+     */
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-userSchema.virtual('fullName').get(function fullNameGetter() {
+userSchema.virtual("fullName").get(function fullNameGetter() {
   return `${this.firstName} ${this.lastName}`.trim();
 });
 
 /**
  * Hashes the password only when it changes.
- * This keeps authentication logic centralized in the model layer.
  */
-userSchema.pre('save', async function hashPassword(next) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function hashPassword(next) {
+  if (!this.isModified("password")) {
     return next();
   }
 
@@ -62,7 +78,9 @@ userSchema.pre('save', async function hashPassword(next) {
   return next();
 });
 
-userSchema.methods.comparePassword = function comparePassword(candidatePassword) {
+userSchema.methods.comparePassword = function comparePassword(
+  candidatePassword,
+) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -73,8 +91,8 @@ userSchema.methods.toSessionUser = function toSessionUser() {
     lastName: this.lastName,
     fullName: this.fullName,
     email: this.email,
-    role: this.role
+    role: this.role,
   };
 };
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema);
+export const User = mongoose.models.User || mongoose.model("User", userSchema);
